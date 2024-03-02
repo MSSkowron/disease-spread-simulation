@@ -20,8 +20,7 @@ const App = () => {
     }
 
     const start = async () => {
-        console.log(simulationJSON)
-        await axios.post(RANDOM_MOVEMENT_SERVER_API_URL, simulationJSON ,{
+        await axios.post(`${RANDOM_MOVEMENT_SERVER_API_URL}/map`, simulationJSON ,{
             headers: {
                 'Content-Type': 'application/json'
               }
