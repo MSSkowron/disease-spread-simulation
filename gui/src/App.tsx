@@ -21,23 +21,23 @@ const App = () => {
     }
 
     return isSimulationOn ? (
-        <div id='simulation-content' />
+        <div id='simulation-content'/>
     ) : (
-        <div id='simulation-form'>
+        <div id='simulation-form' className='w-100 d-flex flex-column justify-content-center align-items-center row-gap-2' style={{height: '100vh'}}>
             <h1>Simulation</h1>
-            <div>
+            <div className='d-flex flex-column'>
                 <label htmlFor=''>X</label>
                 <input type='text' />
             </div>
-            <div>
+            <div className='d-flex flex-column'>
                 <label htmlFor=''>Y</label>
                 <input type='text' />
             </div>
-            <div>
+            <div className='d-flex flex-column'>
                 <label htmlFor=''>Z</label>
                 <input type='text' />
             </div>
-            <button onClick={start}>Start Simulation</button>
+            <button className='pe-auto' onClick={start}>Start Simulation</button>
         </div>
     )
 }

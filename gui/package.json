@@ -11,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "bootstrap": "^5.3.3",
     "grid-engine": "^2.44.2",
     "phaser": "~3.70.0",
     "prettier": "^3.2.5",
