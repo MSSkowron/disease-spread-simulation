@@ -4,11 +4,8 @@ export const MAP_ASSET_KEY = 'glade'
 export const CHARACTER_ASSET_KEY = 'player'
 
 // MAP
-export const LAYER_SCALE = 2.25
-export const RANGE = 3
+export const LAYER_SCALE = 0.71
 
 // PLAYERS
-export const SPRITE_WIDTH = 26
-export const SPRITE_HEIGHT = 36
-export const PLAYER_DESC_OFFSET_LEFT = 10
-export const ALL_PLAYERS_DESC_OFFSET_TOP = 75
+export const SPRITE_WIDTH = 13
+export const SPRITE_HEIGHT = 18

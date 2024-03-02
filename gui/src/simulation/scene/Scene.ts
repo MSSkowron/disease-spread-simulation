@@ -1,7 +1,6 @@
 import * as Phaser from 'phaser'
 import type { GridEngine, Position } from 'grid-engine'
-import { Direction } from 'grid-engine'
-import { Coordinates } from './Types'
+import { CollisionStrategy, Direction } from 'grid-engine'
 import {
     CHARACTER_ASSET_KEY,
     LAYER_SCALE,
@@ -14,6 +13,12 @@ import {
 const RANDOM_MOVEMENT_SERVER_API_URL: string = import.meta.env
     .VITE_RANDOM_MOVEMENT_SERVER_API_URL as string
 
+
+export interface Coordinates {
+    x: number
+    y: number
+}
+
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
     active: false,
     visible: false,
@@ -23,9 +28,9 @@ const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
 export default class Scene extends Phaser.Scene {
     private readonly gridEngine!: GridEngine
 
-    private static readonly characterUrl: string = ''
-    private static readonly tileUrl: string = ''
-    private static readonly tileJSONUrl: string = ''
+    private static readonly characterUrl: string = './assets/characters.png'
+    private static readonly tileUrl: string = './assets/Overworld.png'
+    private static readonly tileJSONUrl: string = './assets/simulation.json'
     private static readonly TilesetName: string = 'Overworld'
 
     private readonly onStop: () => void
@@ -66,7 +71,7 @@ export default class Scene extends Phaser.Scene {
 
         const gridEngineConfig = {
             characters: [],
-            numberOfDirections: 8,
+            numberOfDirections: 4,
         }
 
         this.gridEngine.create(tilemap, gridEngineConfig)
@@ -93,8 +98,6 @@ export default class Scene extends Phaser.Scene {
                 }
             },
         )
-
-        this.scale.resize(window.innerWidth, window.innerHeight)
     }
 
     getDirection = (startPosition: Position, endPosition: Position): Direction => {
@@ -134,9 +137,11 @@ export default class Scene extends Phaser.Scene {
             container,
             facingDirection: direction,
             walkingAnimationMapping: 0,
-            speed: 8,
+            speed: 10,
             startPosition: coords,
-            collides: false,
+            collides: {
+                collisionGroups: [id],
+            },
         })
 
         this.players[id] = {
@@ -154,7 +159,7 @@ export default class Scene extends Phaser.Scene {
     }
 
     movePlayer(id: string, coords: Coordinates): void {
-        this.gridEngine.moveTo(id, coords, { algorithm: 'JPS' })
+        this.gridEngine.moveTo(id, coords, {algorithm: 'JPS'})
 
         this.players[id].coords = coords
     }
