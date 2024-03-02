@@ -1,36 +1,30 @@
 import { useState } from 'react'
 import './App.css'
+import { SimulationData, startSimulation, stopSimulation } from './simulation/Simulation'
 
 const App = () => {
     const [isSimulationOn, setIsSimulationOn] = useState<boolean>(false)
+    const [simulationData, setSimulationData] = useState<SimulationData | null>(null)
 
-    const startSimulation = async () => {
-        // const gameData = startGame(
-        //         gameToken,
-        //         gameStatus,
-        //         gameSettings,
-        //         mapConfig,
-        //         characterURL,
-        //         resourceURL,
-        //         tileSetURL,
-        //       )
-        //       setGameData(gameData)
-        //       document.body.style.overflow = 'hidden'
-        //       setIsSimulationOn(true)
+    const start = async () => {
+        const simulationData = startSimulation()
+        setSimulationData(simulationData)
+        document.body.style.overflow = 'hidden'
+        setIsSimulationOn(true)
     }
 
-    const stopSimulation = () => {
-        // stopGame(gameData)
-        // setGameData(null)
-        // document.body.style.overflow = 'auto'
-        // setIsSimulationOn(false)
+    const stop = () => {
+        stopSimulation(simulationData!)
+        setSimulationData(null)
+        document.body.style.overflow = 'auto'
+        setIsSimulationOn(false)
     }
 
     return isSimulationOn ? (
         <div id='simulation-content' />
     ) : (
         <div id='simulation-form'>
-            <button onClick={startSimulation}>Start Simulation</button>
+            <button onClick={start}>Start Simulation</button>
         </div>
     )
 }
