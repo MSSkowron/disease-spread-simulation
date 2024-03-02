@@ -26,7 +26,7 @@ const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
     key: 'Simulation',
 }
 
-const NO_OF_PLAYERS = 1
+const NO_OF_PLAYERS = 100
 
 export default class Scene extends Phaser.Scene {
     private readonly gridEngine!: GridEngine
@@ -83,68 +83,29 @@ export default class Scene extends Phaser.Scene {
 
         for (let i = 0; i < NO_OF_PLAYERS; i++) {
             const home = this.mapData.privateTiles[i]
-            this.addPlayer(i.toString(), { x: home.width, y: home.height }, Direction.DOWN)
+            this.addPlayer(i.toString(), { x: home.x, y: home.y }, Direction.DOWN)
         }
 
         // this.gridEngine.positionChangeStarted().subscribe(({ charId, exitTile, enterTile }) => {
         //     console.log(`Character ${charId} is moving from ${exitTile} to ${enterTile}`)
         // })
 
-        this.gridEngine.positionChangeFinished().subscribe(({ charId, exitTile, enterTile }) => {
-            this.players[charId].coords = enterTile
-        })
+        // this.gridEngine.positionChangeFinished().subscribe(({ charId, exitTile, enterTile }) => {
+        //     this.players[charId].coords = enterTile
+        // })
 
-        this.input.on(
-            'pointerdown',
-            (pointer: Phaser.Input.Pointer, gameObjects: Phaser.GameObjects.GameObject[]) => {
-                if (gameObjects.length === 0) {
-                    return
-                }
-
-                const clickedSprite = gameObjects[0]
-
-                if (clickedSprite instanceof Phaser.GameObjects.Sprite) {
-                    console.log('Sprite clicked')
-                }
-            },
-        )
-
-        while (true) {
+        setInterval(() => {
             for (let i = 0; i < NO_OF_PLAYERS; i++) {
                 if (this.gridEngine.isMoving(i.toString())) {
-                    console.log(`Character ${i} is moving`)
                 } else {
-                    if (this.players[i.toString()].coords === this.players[i.toString()].home) {
+                    if (this.players[i.toString()].coords.x === this.players[i.toString()].home.x && this.players[i.toString()].coords.y === this.players[i.toString()].home.y) {
                         this.randomMovePlayer(i.toString())
                     } else {
                         this.movePlayer(i.toString(), this.players[i.toString()].home)
                     }
                 }
             }
-        }
-    }
-
-    getDirection = (startPosition: Position, endPosition: Position): Direction => {
-        const xDiff = startPosition.x - endPosition.x
-        const yDiff = startPosition.y - endPosition.y
-
-        if (xDiff === 0 && yDiff === 0) {
-            return Direction.NONE
-        }
-
-        if (xDiff === 0) {
-            return yDiff > 0 ? Direction.UP : Direction.DOWN
-        }
-
-        if (yDiff === 0) {
-            return xDiff > 0 ? Direction.LEFT : Direction.RIGHT
-        }
-
-        if (xDiff > 0) {
-            return yDiff > 0 ? Direction.UP_LEFT : Direction.DOWN_LEFT
-        }
-
-        return yDiff > 0 ? Direction.UP_RIGHT : Direction.DOWN_RIGHT
+        }, 3000)
     }
 
     addPlayer(id: string, home: Coordinates, direction: Direction): void {

@@ -10,8 +10,8 @@ const RANDOM_MOVEMENT_SERVER_API_URL: string = import.meta.env
 export interface MapData {
     id: string,
     privateTiles: {
-        height: number,
-        width: number,
+        x: number,
+        y: number,
     }[],
 }
 
