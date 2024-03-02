@@ -1,6 +1,7 @@
 import Phaser from 'phaser'
 import GridEngine from 'grid-engine'
-import { Scene } from './scene/Scene'
+import Scene from './scene/Scene'
+
 
 export interface SimulationData {
     game: Phaser.Game

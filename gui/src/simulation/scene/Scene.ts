@@ -7,7 +7,6 @@ import { ImageCropper } from '../tools/ImageCropper'
 import { AdvertisementInfoBuilder } from '../tools/AdvertisementInfoBuilder'
 import { Coordinates } from './Types'
 import {
-    ALL_PLAYERS_DESC_OFFSET_TOP,
     CHARACTER_ASSET_KEY,
     LAYER_SCALE,
     MAP_ASSET_KEY,
@@ -25,12 +24,13 @@ const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
     key: 'Simulation',
 }
 
-export class Scene extends Phaser.Scene {
+export default class Scene extends Phaser.Scene {
     private readonly gridEngine!: GridEngine
 
     private static readonly characterUrl: string = ''
-    private static readonly resourceUrl: string = ''
     private static readonly tileUrl: string = ''
+    private static readonly tileJSONUrl: string = ''
+    private static readonly TilesetName: string = 'Overworld'
 
     private readonly onStop: () => void
 
@@ -38,6 +38,8 @@ export class Scene extends Phaser.Scene {
     private readonly advertisementInfoBuilder: AdvertisementInfoBuilder
     private readonly contextMenuBuilder: ContextMenuBuilder
     private readonly imageCropper: ImageCropper
+
+    private readonly players: { [id: string]: { coords: Coordinates; sprite: Phaser.GameObjects.Sprite } } = {}
 
     constructor(onStop: () => void) {
         super(sceneConfig)
@@ -53,7 +55,7 @@ export class Scene extends Phaser.Scene {
     preload(): void {
         this.load.tilemapTiledJSON(
             MAP_ASSET_KEY,
-            `${VITE_ECSB_HTTP_AUTH_AND_MENAGEMENT_API_URL}/assets/${this.settings.gameAssets.mapAssetId}`,
+            Scene.tileJSONUrl,
         )
         this.load.image(TILES_ASSET_KEY, Scene.tileUrl)
         this.load.spritesheet(CHARACTER_ASSET_KEY, Scene.characterUrl, {
@@ -64,11 +66,11 @@ export class Scene extends Phaser.Scene {
 
     create(): void {
         const tilemap = this.make.tilemap({ key: MAP_ASSET_KEY })
-        tilemap.addTilesetImage('Overworld', TILES_ASSET_KEY)
+        tilemap.addTilesetImage(Scene.TilesetName, TILES_ASSET_KEY)
 
         for (let i = 0; i < tilemap.layers.length; i++) {
-            const layer = tilemap.createLayer(i, 'Overworld', 0, 0)
-            layer.scale = LAYER_SCALE
+            const layer = tilemap.createLayer(i, Scene.TilesetName, 0, 0)
+            layer!.scale = LAYER_SCALE
         }
 
         this.cameras.main.setBounds(
@@ -134,11 +136,8 @@ export class Scene extends Phaser.Scene {
         return yDiff > 0 ? Direction.UP_RIGHT : Direction.DOWN_RIGHT
     }
 
-    addPlayer(id: string, coords: Coordinates, direction: Direction, characterClass: string): void {
+    addPlayer(id: string, coords: Coordinates, direction: Direction): void {
         const sprite = this.add.sprite(0, 0, CHARACTER_ASSET_KEY)
-        const text = this.add.text(0, ALL_PLAYERS_DESC_OFFSET_TOP, id)
-        text.setColor('#000000')
-        text.setFontFamily('Georgia, serif')
 
         const cloud = this.interactionCloudBuiler.build(this, id)
         const adBubble = this.advertisementInfoBuilder.build(id)
@@ -147,24 +146,21 @@ export class Scene extends Phaser.Scene {
         sprite.setInteractive()
         sprite.on('pointerdown', (pointer: Phaser.Input.Pointer) => {})
 
-        const container = this.add.container(0, 0, [sprite, text, cloud, adBubble])
+        const container = this.add.container(0, 0, [sprite, cloud, adBubble])
 
         this.gridEngine.addCharacter({
             id: id,
             sprite: sprite,
             container,
             facingDirection: direction,
-            walkingAnimationMapping: getPlayerMapping(this.settings.classResourceRepresentation)(
-                characterClass,
-            ),
-            speed: this.settings.walkingSpeed,
+            walkingAnimationMapping: 0,
+            speed: 8,
             startPosition: coords,
             collides: false,
         })
 
         this.players[id] = {
             coords,
-            direction,
             sprite,
         }
     }
@@ -177,11 +173,10 @@ export class Scene extends Phaser.Scene {
         delete this.players[id]
     }
 
-    movePlayer(id: string, coords: Coordinates, direction: Direction): void {
+    movePlayer(id: string, coords: Coordinates): void {
         this.gridEngine.moveTo(id, coords, { algorithm: 'JPS' })
 
         this.interactionCloudBuiler.purgeUnnecessaryIcons(id)
         this.players[id].coords = coords
-        this.players[id].direction = direction
     }
 }
