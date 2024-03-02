@@ -1,11 +1,22 @@
 version: "3.8"
 
 services:
+  random-server:
+    container_name: server
+    build:
+      context: ./random-movement-server
+      dockerfile: Dockerfile
+    networks:
+      - disease_network
+    ports:
+      - "8080:8080"
   gui:
     container_name: gui
     build:
       context: ./gui
       dockerfile: Dockerfile
+    depends_on:
+      - random-server
     networks:
       - disease_network
     ports:
