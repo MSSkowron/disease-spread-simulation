@@ -23,9 +23,9 @@ const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
 export default class Scene extends Phaser.Scene {
     private readonly gridEngine!: GridEngine
 
-    private static readonly characterUrl: string = ''
-    private static readonly tileUrl: string = ''
-    private static readonly tileJSONUrl: string = ''
+    private static readonly characterUrl: string = './assets/characters.png'
+    private static readonly tileUrl: string = './assets/Overworld.png'
+    private static readonly tileJSONUrl: string = './assets/simulation.json'
     private static readonly TilesetName: string = 'Overworld'
 
     private readonly onStop: () => void
