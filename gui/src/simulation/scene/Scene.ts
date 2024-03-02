@@ -30,7 +30,9 @@ export default class Scene extends Phaser.Scene {
 
     private readonly onStop: () => void
 
-    private readonly players: { [id: string]: { coords: Coordinates; sprite: Phaser.GameObjects.Sprite } } = {}
+    private readonly players: {
+        [id: string]: { coords: Coordinates; sprite: Phaser.GameObjects.Sprite }
+    } = {}
 
     constructor(onStop: () => void) {
         super(sceneConfig)
@@ -38,10 +40,7 @@ export default class Scene extends Phaser.Scene {
     }
 
     preload(): void {
-        this.load.tilemapTiledJSON(
-            MAP_ASSET_KEY,
-            Scene.tileJSONUrl,
-        )
+        this.load.tilemapTiledJSON(MAP_ASSET_KEY, Scene.tileJSONUrl)
         this.load.image(TILES_ASSET_KEY, Scene.tileUrl)
         this.load.spritesheet(CHARACTER_ASSET_KEY, Scene.characterUrl, {
             frameWidth: SPRITE_WIDTH,
