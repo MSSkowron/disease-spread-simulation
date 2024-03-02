@@ -1,10 +1,6 @@
 import * as Phaser from 'phaser'
 import type { GridEngine, Position } from 'grid-engine'
 import { Direction } from 'grid-engine'
-import { InteractionCloudBuilder } from '../tools/InteractionCloudBuilder'
-import { ContextMenuBuilder } from '../tools/ContextMenuBuilder'
-import { ImageCropper } from '../tools/ImageCropper'
-import { AdvertisementInfoBuilder } from '../tools/AdvertisementInfoBuilder'
 import { Coordinates } from './Types'
 import {
     CHARACTER_ASSET_KEY,
@@ -34,22 +30,11 @@ export default class Scene extends Phaser.Scene {
 
     private readonly onStop: () => void
 
-    private readonly interactionCloudBuiler: InteractionCloudBuilder
-    private readonly advertisementInfoBuilder: AdvertisementInfoBuilder
-    private readonly contextMenuBuilder: ContextMenuBuilder
-    private readonly imageCropper: ImageCropper
-
     private readonly players: { [id: string]: { coords: Coordinates; sprite: Phaser.GameObjects.Sprite } } = {}
 
     constructor(onStop: () => void) {
         super(sceneConfig)
-
         this.onStop = onStop
-
-        this.interactionCloudBuiler = new InteractionCloudBuilder()
-        this.advertisementInfoBuilder = new AdvertisementInfoBuilder(this)
-        this.contextMenuBuilder = new ContextMenuBuilder()
-        this.imageCropper = new ImageCropper()
     }
 
     preload(): void {
@@ -139,14 +124,10 @@ export default class Scene extends Phaser.Scene {
     addPlayer(id: string, coords: Coordinates, direction: Direction): void {
         const sprite = this.add.sprite(0, 0, CHARACTER_ASSET_KEY)
 
-        const cloud = this.interactionCloudBuiler.build(this, id)
-        const adBubble = this.advertisementInfoBuilder.build(id)
-        this.advertisementInfoBuilder.setMarginAndVisibility(id)
-
         sprite.setInteractive()
         sprite.on('pointerdown', (pointer: Phaser.Input.Pointer) => {})
 
-        const container = this.add.container(0, 0, [sprite, cloud, adBubble])
+        const container = this.add.container(0, 0, [sprite])
 
         this.gridEngine.addCharacter({
             id: id,
@@ -176,7 +157,6 @@ export default class Scene extends Phaser.Scene {
     movePlayer(id: string, coords: Coordinates): void {
         this.gridEngine.moveTo(id, coords, { algorithm: 'JPS' })
 
-        this.interactionCloudBuiler.purgeUnnecessaryIcons(id)
         this.players[id].coords = coords
     }
 }
