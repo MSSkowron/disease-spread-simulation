@@ -27,9 +27,9 @@ const App = () => {
     }
 
     return isSimulationOn ? (
-        <div id='game-content' />
+        <div id='simulation-content' />
     ) : (
-        <div>
+        <div id='simulation-form'>
             <button onClick={startSimulation}>Start Simulation</button>
         </div>
     )
