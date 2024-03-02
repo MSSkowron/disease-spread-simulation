@@ -24,6 +24,19 @@ const App = () => {
         <div id='simulation-content' />
     ) : (
         <div id='simulation-form'>
+            <h1>Simulation</h1>
+            <div>
+                <label htmlFor="">X</label>
+                <input type="text" />
+            </div>
+            <div>
+                <label htmlFor="">Y</label>
+                <input type="text" />
+            </div>
+            <div>
+                <label htmlFor="">Z</label>
+                <input type="text" />
+            </div>                        
             <button onClick={start}>Start Simulation</button>
         </div>
     )
