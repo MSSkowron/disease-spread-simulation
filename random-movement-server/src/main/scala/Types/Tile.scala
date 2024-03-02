@@ -1,3 +1,3 @@
 package Types
 
-case class Tile(height: Integer, width: Integer)
+case class Tile(y: Integer, x: Integer)
