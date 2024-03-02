@@ -9,10 +9,11 @@ import {
     SPRITE_WIDTH,
     TILES_ASSET_KEY,
 } from '../SimulationUtils'
+import { MapData } from '../../App'
+import axios from 'axios'
 
 const RANDOM_MOVEMENT_SERVER_API_URL: string = import.meta.env
     .VITE_RANDOM_MOVEMENT_SERVER_API_URL as string
-
 
 export interface Coordinates {
     x: number
@@ -25,6 +26,8 @@ const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
     key: 'Simulation',
 }
 
+const NO_OF_PLAYERS = 1
+
 export default class Scene extends Phaser.Scene {
     private readonly gridEngine!: GridEngine
 
@@ -33,14 +36,16 @@ export default class Scene extends Phaser.Scene {
     private static readonly tileJSONUrl: string = './assets/simulation.json'
     private static readonly TilesetName: string = 'Overworld'
 
+    private readonly mapData: MapData
     private readonly onStop: () => void
 
     private readonly players: {
-        [id: string]: { coords: Coordinates; sprite: Phaser.GameObjects.Sprite }
+        [id: string]: { coords: Coordinates; sprite: Phaser.GameObjects.Sprite, home: Coordinates}
     } = {}
 
-    constructor(onStop: () => void) {
+    constructor(mapData: MapData, onStop: () => void) {
         super(sceneConfig)
+        this.mapData = mapData
         this.onStop = onStop
     }
 
@@ -76,12 +81,17 @@ export default class Scene extends Phaser.Scene {
 
         this.gridEngine.create(tilemap, gridEngineConfig)
 
-        this.gridEngine.positionChangeStarted().subscribe(({ charId, exitTile, enterTile }) => {
-            console.log(`Character ${charId} is moving from ${exitTile} to ${enterTile}`)
-        })
+        for (let i = 0; i < NO_OF_PLAYERS; i++) {
+            const home = this.mapData.privateTiles[i]
+            this.addPlayer(i.toString(), { x: home.width, y: home.height }, Direction.DOWN)
+        }
+
+        // this.gridEngine.positionChangeStarted().subscribe(({ charId, exitTile, enterTile }) => {
+        //     console.log(`Character ${charId} is moving from ${exitTile} to ${enterTile}`)
+        // })
 
         this.gridEngine.positionChangeFinished().subscribe(({ charId, exitTile, enterTile }) => {
-            console.log(`Character ${charId} moved from ${exitTile} to ${enterTile}`)
+            this.players[charId].coords = enterTile
         })
 
         this.input.on(
@@ -98,6 +108,20 @@ export default class Scene extends Phaser.Scene {
                 }
             },
         )
+
+        while (true) {
+            for (let i = 0; i < NO_OF_PLAYERS; i++) {
+                if (this.gridEngine.isMoving(i.toString())) {
+                    console.log(`Character ${i} is moving`)
+                } else {
+                    if (this.players[i.toString()].coords === this.players[i.toString()].home) {
+                        this.randomMovePlayer(i.toString())
+                    } else {
+                        this.movePlayer(i.toString(), this.players[i.toString()].home)
+                    }
+                }
+            }
+        }
     }
 
     getDirection = (startPosition: Position, endPosition: Position): Direction => {
@@ -123,7 +147,7 @@ export default class Scene extends Phaser.Scene {
         return yDiff > 0 ? Direction.UP_RIGHT : Direction.DOWN_RIGHT
     }
 
-    addPlayer(id: string, coords: Coordinates, direction: Direction): void {
+    addPlayer(id: string, home: Coordinates, direction: Direction): void {
         const sprite = this.add.sprite(0, 0, CHARACTER_ASSET_KEY)
 
         sprite.setInteractive()
@@ -138,15 +162,22 @@ export default class Scene extends Phaser.Scene {
             facingDirection: direction,
             walkingAnimationMapping: 0,
             speed: 10,
-            startPosition: coords,
+            startPosition: home,
             collides: {
                 collisionGroups: [id],
             },
         })
 
         this.players[id] = {
-            coords,
+            coords: {
+                x: home.x,
+                y: home.y,
+            },
             sprite,
+            home: {
+                x: home.x,
+                y: home.y
+            },
         }
     }
 
@@ -156,6 +187,19 @@ export default class Scene extends Phaser.Scene {
         this.gridEngine.removeCharacter(id)
 
         delete this.players[id]
+    }
+
+    randomMovePlayer(id: string): void {
+        axios.get(`${RANDOM_MOVEMENT_SERVER_API_URL}/map/${this.mapData.id}`, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then((response) => {
+            this.movePlayer(id, {x: response.data.x, y:response.data.y})
+        })
+        .catch((error) => {
+            console.log(error)
+        })
     }
 
     movePlayer(id: string, coords: Coordinates): void {

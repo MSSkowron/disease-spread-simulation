@@ -7,6 +7,28 @@ import simulationJSON from '../assets/simulation.json'
 const RANDOM_MOVEMENT_SERVER_API_URL: string = import.meta.env
     .VITE_RANDOM_MOVEMENT_SERVER_API_URL as string
 
+export interface MapData {
+    id: string,
+    privateTiles: {
+        height: number,
+        width: number,
+    }[],
+}
+
+const shuffle = (array: any[]) => {
+    let currentIndex = array.length,  randomIndex;
+  
+    while (currentIndex > 0) {
+  
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+  
+      [array[currentIndex], array[randomIndex]] = [
+        array[randomIndex], array[currentIndex]];
+    }
+  
+    return array;
+  }
 
 const App = () => {
     const [isSimulationOn, setIsSimulationOn] = useState<boolean>(false)
@@ -26,8 +48,9 @@ const App = () => {
               }
         })
         .then((response) => {
-            console.log(response)
-            const simulationData = startSimulation(stop)
+            const data: MapData = response.data
+            shuffle(data.privateTiles)
+            const simulationData = startSimulation(response.data ,stop)
             setSimulationData(simulationData)
             document.body.style.overflow = 'hidden'
             setIsSimulationOn(true)

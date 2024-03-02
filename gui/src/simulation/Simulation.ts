@@ -1,14 +1,15 @@
 import Phaser from 'phaser'
 import GridEngine from 'grid-engine'
 import Scene from './scene/Scene'
+import { MapData } from '../App'
 
 export interface SimulationData {
     game: Phaser.Game
     scene: Scene
 }
 
-export const startSimulation = (onStop: () => void): SimulationData => {
-    const scene = new Scene(onStop)
+export const startSimulation = (data: MapData, onStop: () => void): SimulationData => {
+    const scene = new Scene(data, onStop)
 
     const config: Phaser.Types.Core.GameConfig = {
         type: Phaser.AUTO,
