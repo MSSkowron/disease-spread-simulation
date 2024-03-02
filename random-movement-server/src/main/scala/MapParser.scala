@@ -21,7 +21,7 @@ object MapParser {
           .flatMap(tileset => tileset.tiles)
           .filter(tileDetails => tileDetails.properties
             .contains(TileProperty(name = propertyName, value = true)))
-          .map(tileDetails => tileDetails.id)
+          .map(tileDetails => tileDetails.id + 1)
           .contains(element._1))
         .map(element => Tile(element._2 / mapLayer.width, element._2 % mapLayer.width))
       )
