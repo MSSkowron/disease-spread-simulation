@@ -26,6 +26,7 @@ const App = () => {
               }
         })
         .then((response) => {
+            console.log(response)
             const simulationData = startSimulation(stop)
             setSimulationData(simulationData)
             document.body.style.overflow = 'hidden'
