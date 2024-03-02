@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  gui:
+    container_name: gui
+    build:
+      context: ./gui
+      dockerfile: Dockerfile
+    networks:
+      - disease_network
+    ports:
+      - "5173:5173"
+
+networks:
+  disease_network:
