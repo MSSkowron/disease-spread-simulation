@@ -4,38 +4,38 @@ import { type Direction } from 'grid-engine'
 import Key = Phaser.Input.Keyboard.Key
 
 export enum CloudType {
-  WORK = 'work',
-  TRAVEL = 'travel',
-  TALK = 'talk',
-  PRODUCTION = 'production',
+    WORK = 'work',
+    TRAVEL = 'travel',
+    TALK = 'talk',
+    PRODUCTION = 'production',
 }
 
 export type PlayerId = string
 
 export interface Coordinates {
-  x: number
-  y: number
+    x: number
+    y: number
 }
 
 export interface PlayerState {
-  coords: Coordinates
-  direction: Direction
-  sprite: Phaser.GameObjects.Sprite
+    coords: Coordinates
+    direction: Direction
+    sprite: Phaser.GameObjects.Sprite
 }
 
 export interface PlannedTravel {
-  isSingle: boolean
-  wantToCooperate: boolean | null
+    isSingle: boolean
+    wantToCooperate: boolean | null
 
-  travel: Travel
+    travel: Travel
 
-  playerResources: Equipment
-  playerRequiredResources: Equipment
-  playerProfit: number | null
-  playerIsRunning: boolean | null
+    playerResources: Equipment
+    playerRequiredResources: Equipment
+    playerProfit: number | null
+    playerIsRunning: boolean | null
 
-  partner: string | null
-  partnerResources: Equipment | null
-  partnerRequiredResources: Equipment | null
-  partnerProfit: number | null
+    partner: string | null
+    partnerResources: Equipment | null
+    partnerRequiredResources: Equipment | null
+    partnerProfit: number | null
 }
