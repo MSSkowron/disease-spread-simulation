@@ -149,6 +149,7 @@ export default class Scene extends Phaser.Scene {
                     this.tiles[enterTile.x][enterTile.y] += 1
                     this.numberOfIll++
                     this.setNumberOfIll(this.numberOfIll)
+                    this.gridEngine.setWalkingAnimationMapping(charId, 1)
                 }
             }
             this.players[charId].coords = enterTile
@@ -201,6 +202,7 @@ export default class Scene extends Phaser.Scene {
             this.tiles[home.x][home.y] = 1
             this.numberOfIll++
             this.setNumberOfIll(this.numberOfIll)
+            this.gridEngine.setWalkingAnimationMapping(id, 1)
         }
 
         this.players[id] = {
