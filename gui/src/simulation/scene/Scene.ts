@@ -26,7 +26,7 @@ const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
     key: 'Simulation',
 }
 
-const NO_OF_PLAYERS = 100
+const NO_OF_PLAYERS = 200
 
 export default class Scene extends Phaser.Scene {
     private readonly gridEngine!: GridEngine
@@ -40,7 +40,7 @@ export default class Scene extends Phaser.Scene {
     private readonly onStop: () => void
 
     private readonly players: {
-        [id: string]: { coords: Coordinates; sprite: Phaser.GameObjects.Sprite, home: Coordinates}
+        [id: string]: { isHome: boolean, home: Coordinates ,sprite: Phaser.GameObjects.Sprite}
     } = {}
 
     constructor(mapData: MapData, onStop: () => void) {
@@ -86,26 +86,26 @@ export default class Scene extends Phaser.Scene {
             this.addPlayer(i.toString(), { x: home.x, y: home.y }, Direction.DOWN)
         }
 
-        // this.gridEngine.positionChangeStarted().subscribe(({ charId, exitTile, enterTile }) => {
-        //     console.log(`Character ${charId} is moving from ${exitTile} to ${enterTile}`)
-        // })
+        for (let i = 0; i < NO_OF_PLAYERS; i++) {
+            setTimeout(() => {
+                this.players[i.toString()].isHome = false
+                this.randomMovePlayer(i.toString())
+            }, Math.random() * 10000 + 500)
+        }
 
-        // this.gridEngine.positionChangeFinished().subscribe(({ charId, exitTile, enterTile }) => {
-        //     this.players[charId].coords = enterTile
-        // })
-
-        setInterval(() => {
-            for (let i = 0; i < NO_OF_PLAYERS; i++) {
-                if (this.gridEngine.isMoving(i.toString())) {
-                } else {
-                    if (this.players[i.toString()].coords.x === this.players[i.toString()].home.x && this.players[i.toString()].coords.y === this.players[i.toString()].home.y) {
-                        this.randomMovePlayer(i.toString())
-                    } else {
-                        this.movePlayer(i.toString(), this.players[i.toString()].home)
-                    }
-                }
+        this.gridEngine.movementStopped().subscribe(({ charId, direction }) => {
+            if (this.players[charId].isHome) {
+                setTimeout(() => {
+                    this.players[charId].isHome = false
+                    this.randomMovePlayer(charId)
+                }, Math.random() * 10000 + 500)
+            } else {
+                setTimeout(() => {
+                    this.players[charId].isHome = true
+                    this.movePlayer(charId, this.players[charId].home)
+                }, Math.random() * 10000 + 500)
             }
-        }, 3000)
+        })
     }
 
     addPlayer(id: string, home: Coordinates, direction: Direction): void {
@@ -122,7 +122,7 @@ export default class Scene extends Phaser.Scene {
             container,
             facingDirection: direction,
             walkingAnimationMapping: 0,
-            speed: 10,
+            speed: 7,
             startPosition: home,
             collides: {
                 collisionGroups: [id],
@@ -130,15 +130,9 @@ export default class Scene extends Phaser.Scene {
         })
 
         this.players[id] = {
-            coords: {
-                x: home.x,
-                y: home.y,
-            },
+            isHome: true,
+            home: home,
             sprite,
-            home: {
-                x: home.x,
-                y: home.y
-            },
         }
     }
 
@@ -165,7 +159,5 @@ export default class Scene extends Phaser.Scene {
 
     movePlayer(id: string, coords: Coordinates): void {
         this.gridEngine.moveTo(id, coords, {algorithm: 'JPS'})
-
-        this.players[id].coords = coords
     }
 }
