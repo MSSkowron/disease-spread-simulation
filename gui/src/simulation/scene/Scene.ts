@@ -37,7 +37,11 @@ export default class Scene extends Phaser.Scene {
     private readonly mapData: MapData
     private readonly numberOfPlayers: number
     private readonly timeOfSimulation: number
+    private readonly probabilityOfInfection: number
+    private readonly probabilityOfInfectionAtTheBeginning: number
     private readonly onStop: () => void
+    private readonly onIll: () => void
+    private readonly onUnill: () => void
 
     private readonly players: {
         [id: string]: { isHome: boolean; home: Coordinates; sprite: Phaser.GameObjects.Sprite; coords: Coordinates, isIll: boolean }
@@ -48,13 +52,21 @@ export default class Scene extends Phaser.Scene {
         mapData: MapData,
         numberOfPlayers: number,
         timeOfSimulation: number,
+        probabilityOfInfection: number,
+        probabilityOfInfectionAtTheBeginning: number,
         onStop: () => void,
+        onIll: () => void,
+        onUnill: () => void,
     ) {
         super(sceneConfig)
         this.mapData = mapData
         this.numberOfPlayers = numberOfPlayers
         this.timeOfSimulation = timeOfSimulation
+        this.probabilityOfInfection = probabilityOfInfection
+        this.probabilityOfInfectionAtTheBeginning = probabilityOfInfectionAtTheBeginning
         this.onStop = onStop
+        this.onIll = onIll
+        this.onUnill = onUnill
 
         this.tiles = [];
         for(var i: number = 0; i < 80; i++) {
@@ -97,66 +109,63 @@ export default class Scene extends Phaser.Scene {
 
         this.gridEngine.create(tilemap, gridEngineConfig)
 
-        // for (let i = 0; i < this.numberOfPlayers; i++) {
-        //     const home = this.mapData.privateTiles[i]
-        //     this.addPlayer(i.toString(), { x: home.x, y: home.y }, Direction.DOWN)
-        // }
+        for (let i = 0; i < this.numberOfPlayers; i++) {
+            const home = this.mapData.privateTiles[i]
+            this.addPlayer(i.toString(), { x: home.x, y: home.y }, Direction.DOWN)
+        }
 
-        // this.gridEngine.movementStopped().subscribe(({ charId, direction }) => {
-        //     if (this.players[charId].isHome) {
-        //         setTimeout(
-        //             () => {
-        //                 this.players[charId].isHome = false
-        //                 this.randomMovePlayer(charId)
-        //             },
-        //             Math.random() * 10000 + 500,
-        //         )
-        //     } else {
-        //         setTimeout(
-        //             () => {
-        //                 this.players[charId].isHome = true
-        //                 this.movePlayer(charId, this.players[charId].home)
-        //             },
-        //             Math.random() * 10000 + 500,
-        //         )
-        //     }
-        // })
+        this.gridEngine.movementStopped().subscribe(({ charId, direction }) => {
+            if (this.players[charId].isHome) {
+                setTimeout(
+                    () => {
+                        this.players[charId].isHome = false
+                        this.randomMovePlayer(charId)
+                    },
+                    Math.random() * 10000 + 500,
+                )
+            } else {
+                setTimeout(
+                    () => {
+                        this.players[charId].isHome = true
+                        this.movePlayer(charId, this.players[charId].home)
+                    },
+                    Math.random() * 10000 + 500,
+                )
+            }
+        })
 
-        // this.gridEngine.positionChangeFinished().subscribe(({ charId, exitTile, enterTile }) => {
-        //     if (this.players[charId].isIll) {
-        //         this.tiles[exitTile.x][exitTile.y] -= 1
-        //         this.tiles[enterTile.x][enterTile.y] += 1
-        //     } else {
-        //         var sum = this.tiles[enterTile.x][enterTile.y]
-        //         sum = sum + enterTile.x > 0 ? this.tiles[enterTile.x - 1][enterTile.y] : 0
-        //         sum = sum + enterTile.x < 79 ? this.tiles[enterTile.x + 1][enterTile.y] : 0
-        //         sum = sum + enterTile.y > 0 ? this.tiles[enterTile.x][enterTile.y - 1] : 0
-        //         sum = sum + enterTile.y < 79 ? this.tiles[enterTile.x][enterTile.y + 1] : 0
-        //         this.players[charId].isIll = Math.random() < sum * 0.2
-        //         if (this.players[charId].isIll) {
-        //             this.tiles[enterTile.x][enterTile.y] += 1
-        //         }
-        //     }
-        //     this.players[charId].coords = enterTile
-        // })
+        this.gridEngine.positionChangeFinished().subscribe(({ charId, exitTile, enterTile }) => {
+            if (this.players[charId].isIll) {
+                this.tiles[exitTile.x][exitTile.y] -= 1
+                this.tiles[enterTile.x][enterTile.y] += 1
+            } else {
+                var sum = this.tiles[enterTile.x][enterTile.y]
+                sum = sum + enterTile.x > 0 ? this.tiles[enterTile.x - 1][enterTile.y] : 0
+                sum = sum + enterTile.x < 79 ? this.tiles[enterTile.x + 1][enterTile.y] : 0
+                sum = sum + enterTile.y > 0 ? this.tiles[enterTile.x][enterTile.y - 1] : 0
+                sum = sum + enterTile.y < 79 ? this.tiles[enterTile.x][enterTile.y + 1] : 0
+                this.players[charId].isIll = Math.random() < sum * this.probabilityOfInfection
+                if (this.players[charId].isIll) {
+                    this.tiles[enterTile.x][enterTile.y] += 1
+                    this.onIll()
+                }
+            }
+            this.players[charId].coords = enterTile
+        })
 
-        // for (let i = 0; i < this.numberOfPlayers; i++) {
-        //     setTimeout(
-        //         () => {
-        //             this.players[i.toString()].isHome = false
-        //             this.randomMovePlayer(i.toString())
-        //         },
-        //         Math.random() * 10000 + 500,
-        //     )
-        // }
+        for (let i = 0; i < this.numberOfPlayers; i++) {
+            setTimeout(
+                () => {
+                    this.players[i.toString()].isHome = false
+                    this.randomMovePlayer(i.toString())
+                },
+                Math.random() * 10000 + 500,
+            )
+        }
 
-        // setTimeout(() => {
-        //     this.stop()
-        // }, this.timeOfSimulation)
-
-        // setInterval(() => {
-        //     this.printIll()
-        // }, 1000)
+        setTimeout(() => {
+            this.stop()
+        }, this.timeOfSimulation)
     }
 
     printIll(): void {
@@ -167,8 +176,8 @@ export default class Scene extends Phaser.Scene {
     addPlayer(id: string, home: Coordinates, direction: Direction): void {
         const sprite = this.add.sprite(0, 0, CHARACTER_ASSET_KEY)
 
-        sprite.setInteractive()
-        sprite.on('pointerdown', (pointer: Phaser.Input.Pointer) => {})
+        // sprite.setInteractive()
+        // sprite.on('pointerdown', (pointer: Phaser.Input.Pointer) => {})
 
         const container = this.add.container(0, 0, [sprite])
 
@@ -178,7 +187,7 @@ export default class Scene extends Phaser.Scene {
             container,
             facingDirection: direction,
             walkingAnimationMapping: 0,
-            speed: 20,
+            speed: 10,
             startPosition: home,
             collides: {
                 collisionGroups: [id],
@@ -186,7 +195,7 @@ export default class Scene extends Phaser.Scene {
         })
 
         let ill = false
-        if (Math.random() < 0.05) {
+        if (Math.random() < this.probabilityOfInfectionAtTheBeginning) {
             ill = true
             this.tiles[home.x][home.y] = 1
         }

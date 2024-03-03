@@ -12,9 +12,13 @@ export const startSimulation = (
     data: MapData,
     numberOfPlayers: number,
     timeOfSimulation: number,
+    probabilityOfInfection: number,
+    probabilityOfInfectionAtTheBeginning: number,
     onStop: () => void,
+    onIll: () => void,
+    onUnill: () => void,
 ): SimulationData => {
-    const scene = new Scene(data, numberOfPlayers, timeOfSimulation, onStop)
+    const scene = new Scene(data, numberOfPlayers, timeOfSimulation, probabilityOfInfection, probabilityOfInfectionAtTheBeginning, onStop, onIll, onUnill)
 
     const config: Phaser.Types.Core.GameConfig = {
         type: Phaser.AUTO,
