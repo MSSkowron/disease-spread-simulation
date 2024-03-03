@@ -198,6 +198,7 @@ export default class Scene extends Phaser.Scene {
         if (Math.random() < this.probabilityOfInfectionAtTheBeginning) {
             ill = true
             this.tiles[home.x][home.y] = 1
+            this.onIll()
         }
 
         this.players[id] = {
