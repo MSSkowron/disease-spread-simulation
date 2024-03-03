@@ -29,7 +29,7 @@ export const startSimulation = (
         },
         scale: {
             parent: 'simulation-content',
-            mode: Phaser.Scale.ScaleModes.HEIGHT_CONTROLS_WIDTH,
+            mode: Phaser.Scale.ScaleModes.NONE,
             height: '100%',
         },
         parent: 'simulation-content',
