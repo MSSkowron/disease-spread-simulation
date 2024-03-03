@@ -8,8 +8,13 @@ export interface SimulationData {
     scene: Scene
 }
 
-export const startSimulation = (data: MapData, onStop: () => void): SimulationData => {
-    const scene = new Scene(data, onStop)
+export const startSimulation = (
+    data: MapData,
+    numberOfPlayers: number,
+    timeOfSimulation: number,
+    onStop: () => void,
+): SimulationData => {
+    const scene = new Scene(data, numberOfPlayers, timeOfSimulation, onStop)
 
     const config: Phaser.Types.Core.GameConfig = {
         type: Phaser.AUTO,

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import './App.css'
-import { SimulationData, startSimulation, stopSimulation } from './simulation/Simulation'
+import { startSimulation, stopSimulation } from './simulation/Simulation'
 import axios from 'axios'
 import simulationJSON from '../assets/simulation.json'
 
@@ -28,18 +28,12 @@ const shuffle = (array: any[]) => {
     }
   
     return array;
-  }
+}
 
 const App = () => {
     const [isSimulationOn, setIsSimulationOn] = useState<boolean>(false)
-    const [simulationData, setSimulationData] = useState<SimulationData | null>(null)
-
-    const stop = () => {
-        stopSimulation(simulationData!)
-        setSimulationData(null)
-        document.body.style.overflow = 'auto'
-        setIsSimulationOn(false)
-    }
+    const [numberOfPlayers, setNumberOfPlayers] = useState<number>(200)
+    const [timeOfSimulation, setTimeOfSimulation] = useState<number>(10000)
 
     const start = async () => {
         await axios.post(`${RANDOM_MOVEMENT_SERVER_API_URL}/map`, simulationJSON ,{
@@ -50,13 +44,18 @@ const App = () => {
         .then((response) => {
             const data: MapData = response.data
             shuffle(data.privateTiles)
-            const simulationData = startSimulation(response.data ,stop)
-            setSimulationData(simulationData)
+            const simulationData = startSimulation(response.data, numberOfPlayers, timeOfSimulation, () => {
+                stopSimulation(simulationData!)
+                document.body.style.overflow = 'auto'
+                setIsSimulationOn(false)
+                setNumberOfPlayers(200)
+                setTimeOfSimulation(10000)
+            })
             document.body.style.overflow = 'hidden'
             setIsSimulationOn(true)
         })
         .catch((error) => {
-            console.log(error)
+            console.error(error)
         })
     }
 
@@ -66,16 +65,16 @@ const App = () => {
         <div id='simulation-form' className='w-100 d-flex flex-column justify-content-center align-items-center row-gap-2' style={{height: '100vh'}}>
             <h1>Simulation</h1>
             <div className='d-flex flex-column'>
-                <label htmlFor=''>X</label>
-                <input type='text' />
+                <label htmlFor='numberOfPlayers'>Number of players</label>
+                <input id='numberOfPlayers' type='number' min={1} max={200} value={numberOfPlayers} onChange={(e) => {
+                    setNumberOfPlayers(parseInt(e.target.value))
+                }}/>
             </div>
             <div className='d-flex flex-column'>
-                <label htmlFor=''>Y</label>
-                <input type='text' />
-            </div>
-            <div className='d-flex flex-column'>
-                <label htmlFor=''>Z</label>
-                <input type='text' />
+                <label htmlFor='timeOfSimulation'>Time of simulation (in miliseconds)</label>
+                <input id='timeOfSimulation' type='number' min={1} max={1000000} value={timeOfSimulation} onChange={(e) => {
+                    setTimeOfSimulation(parseInt(e.target.value))
+                }}/>
             </div>
             <button className='pe-auto' onClick={start}>Start Simulation</button>
         </div>

@@ -26,8 +26,6 @@ const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
     key: 'Simulation',
 }
 
-const NO_OF_PLAYERS = 200
-
 export default class Scene extends Phaser.Scene {
     private readonly gridEngine!: GridEngine
 
@@ -37,15 +35,24 @@ export default class Scene extends Phaser.Scene {
     private static readonly TilesetName: string = 'Overworld'
 
     private readonly mapData: MapData
+    private readonly numberOfPlayers: number
+    private readonly timeOfSimulation: number
     private readonly onStop: () => void
 
     private readonly players: {
-        [id: string]: { isHome: boolean, home: Coordinates ,sprite: Phaser.GameObjects.Sprite}
+        [id: string]: { isHome: boolean; home: Coordinates; sprite: Phaser.GameObjects.Sprite }
     } = {}
 
-    constructor(mapData: MapData, onStop: () => void) {
+    constructor(
+        mapData: MapData,
+        numberOfPlayers: number,
+        timeOfSimulation: number,
+        onStop: () => void,
+    ) {
         super(sceneConfig)
         this.mapData = mapData
+        this.numberOfPlayers = numberOfPlayers
+        this.timeOfSimulation = timeOfSimulation
         this.onStop = onStop
     }
 
@@ -81,31 +88,44 @@ export default class Scene extends Phaser.Scene {
 
         this.gridEngine.create(tilemap, gridEngineConfig)
 
-        for (let i = 0; i < NO_OF_PLAYERS; i++) {
+        for (let i = 0; i < this.numberOfPlayers; i++) {
             const home = this.mapData.privateTiles[i]
             this.addPlayer(i.toString(), { x: home.x, y: home.y }, Direction.DOWN)
         }
 
-        for (let i = 0; i < NO_OF_PLAYERS; i++) {
-            setTimeout(() => {
-                this.players[i.toString()].isHome = false
-                this.randomMovePlayer(i.toString())
-            }, Math.random() * 10000 + 500)
-        }
-
         this.gridEngine.movementStopped().subscribe(({ charId, direction }) => {
             if (this.players[charId].isHome) {
-                setTimeout(() => {
-                    this.players[charId].isHome = false
-                    this.randomMovePlayer(charId)
-                }, Math.random() * 10000 + 500)
+                setTimeout(
+                    () => {
+                        this.players[charId].isHome = false
+                        this.randomMovePlayer(charId)
+                    },
+                    Math.random() * 10000 + 500,
+                )
             } else {
-                setTimeout(() => {
-                    this.players[charId].isHome = true
-                    this.movePlayer(charId, this.players[charId].home)
-                }, Math.random() * 10000 + 500)
+                setTimeout(
+                    () => {
+                        this.players[charId].isHome = true
+                        this.movePlayer(charId, this.players[charId].home)
+                    },
+                    Math.random() * 10000 + 500,
+                )
             }
         })
+
+        for (let i = 0; i < this.numberOfPlayers; i++) {
+            setTimeout(
+                () => {
+                    this.players[i.toString()].isHome = false
+                    this.randomMovePlayer(i.toString())
+                },
+                Math.random() * 10000 + 500,
+            )
+        }
+
+        setTimeout(() => {
+            this.stop()
+        }, this.timeOfSimulation)
     }
 
     addPlayer(id: string, home: Coordinates, direction: Direction): void {
@@ -122,7 +142,7 @@ export default class Scene extends Phaser.Scene {
             container,
             facingDirection: direction,
             walkingAnimationMapping: 0,
-            speed: 7,
+            speed: 10,
             startPosition: home,
             collides: {
                 collisionGroups: [id],
@@ -145,19 +165,26 @@ export default class Scene extends Phaser.Scene {
     }
 
     randomMovePlayer(id: string): void {
-        axios.get(`${RANDOM_MOVEMENT_SERVER_API_URL}/map/${this.mapData.id}`, {
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        }).then((response) => {
-            this.movePlayer(id, {x: response.data.x, y:response.data.y})
-        })
-        .catch((error) => {
-            console.log(error)
-        })
+        axios
+            .get(`${RANDOM_MOVEMENT_SERVER_API_URL}/map/${this.mapData.id}`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then((response) => {
+                this.movePlayer(id, { x: response.data.x, y: response.data.y })
+            })
+            .catch((error) => {
+                console.error(error)
+            })
     }
 
     movePlayer(id: string, coords: Coordinates): void {
-        this.gridEngine.moveTo(id, coords, {algorithm: 'JPS'})
+        this.gridEngine.moveTo(id, coords, { algorithm: 'JPS' })
+    }
+
+    stop(): void {
+        // TODO: Implement
+        this.onStop()
     }
 }
