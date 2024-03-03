@@ -64,6 +64,9 @@ const App = () => {
                 setIsSimulationOn(false)
                 setNumberOfPlayers(200)
                 setTimeOfSimulation(10)
+                setProbabilityOfInfection('0.2')
+                setProbabilityOfInfectionAtTheBeginning('0.1')
+                setNumberOfIll(0)
             }, () => {
                 setNumberOfIll(numberOfIll + 1)
             }, () => {
