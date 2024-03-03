@@ -150,6 +150,16 @@ export default class Scene extends Phaser.Scene {
                     this.numberOfIll++
                     this.setNumberOfIll(this.numberOfIll)
                     this.gridEngine.setWalkingAnimationMapping(charId, 1)
+
+                    setTimeout(
+                        () => {
+                            this.tiles[this.players[charId].coords.x][this.players[charId].coords.y] -= 1
+                            this.numberOfIll--
+                            this.setNumberOfIll(this.numberOfIll)
+                            this.gridEngine.setWalkingAnimationMapping(charId, 0)
+                        },
+                        Math.random() * 10000 + 500,
+                    )
                 }
             }
             this.players[charId].coords = enterTile
@@ -203,6 +213,16 @@ export default class Scene extends Phaser.Scene {
             this.numberOfIll++
             this.setNumberOfIll(this.numberOfIll)
             this.gridEngine.setWalkingAnimationMapping(id, 1)
+
+            setTimeout(
+                () => {
+                    this.tiles[this.players[id].coords.x][this.players[id].coords.y] -= 1
+                    this.numberOfIll--
+                    this.setNumberOfIll(this.numberOfIll)
+                    this.gridEngine.setWalkingAnimationMapping(id, 0)
+                },
+                Math.random() * 10000 + 2000,
+            )
         }
 
         this.players[id] = {
