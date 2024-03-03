@@ -67,10 +67,8 @@ const App = () => {
                 setProbabilityOfInfection('0.2')
                 setProbabilityOfInfectionAtTheBeginning('0.1')
                 setNumberOfIll(0)
-            }, () => {
-                setNumberOfIll(numberOfIll + 1)
-            }, () => {
-                setNumberOfIll(numberOfIll - 1)
+            }, (n : number) => {
+                setNumberOfIll(n)
             })
             document.body.style.overflow = 'hidden'
             setIsSimulationOn(true)

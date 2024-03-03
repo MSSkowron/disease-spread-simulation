@@ -34,14 +34,15 @@ export default class Scene extends Phaser.Scene {
     private static readonly tileJSONUrl: string = './assets/simulation.json'
     private static readonly TilesetName: string = 'Overworld'
 
+    private numberOfIll: number
+
     private readonly mapData: MapData
     private readonly numberOfPlayers: number
     private readonly timeOfSimulation: number
     private readonly probabilityOfInfection: number
     private readonly probabilityOfInfectionAtTheBeginning: number
     private readonly onStop: () => void
-    private readonly onIll: () => void
-    private readonly onUnill: () => void
+    private readonly setNumberOfIll: (n: number) => void
 
     private readonly players: {
         [id: string]: { isHome: boolean; home: Coordinates; sprite: Phaser.GameObjects.Sprite; coords: Coordinates, isIll: boolean }
@@ -55,18 +56,17 @@ export default class Scene extends Phaser.Scene {
         probabilityOfInfection: number,
         probabilityOfInfectionAtTheBeginning: number,
         onStop: () => void,
-        onIll: () => void,
-        onUnill: () => void,
+        setNumberOfIll: (n: number) => void,
     ) {
         super(sceneConfig)
+        this.numberOfIll = 0
         this.mapData = mapData
         this.numberOfPlayers = numberOfPlayers
         this.timeOfSimulation = timeOfSimulation
         this.probabilityOfInfection = probabilityOfInfection
         this.probabilityOfInfectionAtTheBeginning = probabilityOfInfectionAtTheBeginning
         this.onStop = onStop
-        this.onIll = onIll
-        this.onUnill = onUnill
+        this.setNumberOfIll = setNumberOfIll
 
         this.tiles = [];
         for(var i: number = 0; i < 80; i++) {
@@ -147,7 +147,8 @@ export default class Scene extends Phaser.Scene {
                 this.players[charId].isIll = Math.random() < sum * this.probabilityOfInfection
                 if (this.players[charId].isIll) {
                     this.tiles[enterTile.x][enterTile.y] += 1
-                    this.onIll()
+                    this.numberOfIll++
+                    this.setNumberOfIll(this.numberOfIll)
                 }
             }
             this.players[charId].coords = enterTile
@@ -198,7 +199,8 @@ export default class Scene extends Phaser.Scene {
         if (Math.random() < this.probabilityOfInfectionAtTheBeginning) {
             ill = true
             this.tiles[home.x][home.y] = 1
-            this.onIll()
+            this.numberOfIll++
+            this.setNumberOfIll(this.numberOfIll)
         }
 
         this.players[id] = {
