@@ -40,8 +40,9 @@ export default class Scene extends Phaser.Scene {
     private readonly onStop: () => void
 
     private readonly players: {
-        [id: string]: { isHome: boolean; home: Coordinates; sprite: Phaser.GameObjects.Sprite }
+        [id: string]: { isHome: boolean; home: Coordinates; sprite: Phaser.GameObjects.Sprite; coords: Coordinates, isIll: boolean }
     } = {}
+    private tiles: integer[][]
 
     constructor(
         mapData: MapData,
@@ -54,6 +55,14 @@ export default class Scene extends Phaser.Scene {
         this.numberOfPlayers = numberOfPlayers
         this.timeOfSimulation = timeOfSimulation
         this.onStop = onStop
+
+        this.tiles = [];
+        for(var i: number = 0; i < 80; i++) {
+            this.tiles[i] = [];
+            for(var j: number = 0; j < 80; j++) {
+                this.tiles[i][j] = 0;
+            }
+        }
     }
 
     preload(): void {
@@ -113,6 +122,24 @@ export default class Scene extends Phaser.Scene {
             }
         })
 
+        this.gridEngine.positionChangeFinished().subscribe(({ charId, exitTile, enterTile }) => {
+            if (this.players[charId].isIll) {
+                this.tiles[exitTile.x][exitTile.y] -= 1
+                this.tiles[enterTile.x][enterTile.y] += 1
+            } else {
+                var sum = this.tiles[enterTile.x][enterTile.y]
+                sum = sum + enterTile.x > 0 ? this.tiles[enterTile.x - 1][enterTile.y] : 0
+                sum = sum + enterTile.x < 79 ? this.tiles[enterTile.x + 1][enterTile.y] : 0
+                sum = sum + enterTile.y > 0 ? this.tiles[enterTile.x][enterTile.y - 1] : 0
+                sum = sum + enterTile.y < 79 ? this.tiles[enterTile.x][enterTile.y + 1] : 0
+                this.players[charId].isIll = Math.random() < sum * 0.2
+                if (this.players[charId].isIll) {
+                    this.tiles[enterTile.x][enterTile.y] += 1
+                }
+            }
+            this.players[charId].coords = enterTile
+        })
+
         for (let i = 0; i < this.numberOfPlayers; i++) {
             setTimeout(
                 () => {
@@ -126,6 +153,15 @@ export default class Scene extends Phaser.Scene {
         setTimeout(() => {
             this.stop()
         }, this.timeOfSimulation)
+
+        setInterval(() => {
+            this.printIll()
+        }, 1000)
+    }
+
+    printIll(): void {
+        console.log(this.tiles.reduce(function(a, b) { return a.concat(b) }) 
+            .reduce(function(a, b) { return a + b }));
     }
 
     addPlayer(id: string, home: Coordinates, direction: Direction): void {
@@ -142,17 +178,25 @@ export default class Scene extends Phaser.Scene {
             container,
             facingDirection: direction,
             walkingAnimationMapping: 0,
-            speed: 10,
+            speed: 20,
             startPosition: home,
             collides: {
                 collisionGroups: [id],
             },
         })
 
+        let ill = false
+        if (Math.random() < 0.05) {
+            ill = true
+            this.tiles[home.x][home.y] = 1
+        }
+
         this.players[id] = {
             isHome: true,
             home: home,
             sprite,
+            coords: {x: home.x, y: home.y},
+            isIll: ill
         }
     }
 
