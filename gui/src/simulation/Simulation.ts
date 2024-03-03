@@ -25,9 +25,9 @@ export const startSimulation = (
             antialias: false,
         },
         scale: {
-            mode: Phaser.Scale.ScaleModes.RESIZE,
-            width: window.innerWidth,
-            height: window.innerHeight,
+            parent: 'simulation-content',
+            mode: Phaser.Scale.ScaleModes.HEIGHT_CONTROLS_WIDTH,
+            height: '100%',
         },
         parent: 'simulation-content',
         scene: scene,

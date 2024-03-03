@@ -59,24 +59,29 @@ const App = () => {
         })
     }
 
-    return isSimulationOn ? (
-        <div id='simulation-content'/>
-    ) : (
-        <div id='simulation-form' className='w-100 d-flex flex-column justify-content-center align-items-center row-gap-2' style={{height: '100vh'}}>
-            <h1>Simulation</h1>
-            <div className='d-flex flex-column'>
-                <label htmlFor='numberOfPlayers'>Number of players</label>
-                <input id='numberOfPlayers' type='number' min={1} max={200} value={numberOfPlayers} onChange={(e) => {
-                    setNumberOfPlayers(parseInt(e.target.value))
-                }}/>
+    return (
+        <div style={{height: '100vh', width: '100vw'}}>
+            <div id='simulation-content' style={{display: `${isSimulationOn ? 'flex' : 'none'}`}} className='w-100 h-100 flex-row-reverse'>
+                <div className='flex-grow-1 d-flex justify-content-center align-items-center'>
+                    Info Dashboard
+                </div>
             </div>
-            <div className='d-flex flex-column'>
-                <label htmlFor='timeOfSimulation'>Time of simulation (in miliseconds)</label>
-                <input id='timeOfSimulation' type='number' min={1} max={1000000} value={timeOfSimulation} onChange={(e) => {
-                    setTimeOfSimulation(parseInt(e.target.value))
-                }}/>
+            <div id='simulation-form' style={{display: `${isSimulationOn ? 'none' : 'flex'}`}} className='w-100 h-100 flex-column justify-content-center align-items-center row-gap-2'>
+                <h1>Simulation</h1>
+                <div className='d-flex flex-column'>
+                    <label htmlFor='numberOfPlayers'>Number of players</label>
+                    <input id='numberOfPlayers' type='number' min={1} max={200} value={numberOfPlayers} onChange={(e) => {
+                        setNumberOfPlayers(parseInt(e.target.value))
+                    }}/>
+                </div>
+                <div className='d-flex flex-column'>
+                    <label htmlFor='timeOfSimulation'>Time of simulation (in miliseconds)</label>
+                    <input id='timeOfSimulation' type='number' min={1} max={1000000} value={timeOfSimulation} onChange={(e) => {
+                        setTimeOfSimulation(parseInt(e.target.value))
+                    }}/>
+                </div>
+                <button className='pe-auto' onClick={start}>Start Simulation</button>
             </div>
-            <button className='pe-auto' onClick={start}>Start Simulation</button>
         </div>
     )
 }
