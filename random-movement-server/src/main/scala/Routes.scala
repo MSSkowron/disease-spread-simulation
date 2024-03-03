@@ -38,7 +38,11 @@ object Routes {
           uid = UUID.randomUUID()
           mapInfo = MapParser.convertMap(simulationMap)
           _ = simulationMaps.put(uid, mapInfo)
-          res <- Ok(MapResponse(id = uid, privateTiles = mapInfo.privateTiles).asJson)
+          res <- Ok(MapResponse(id = uid,
+            privateTiles = mapInfo.privateTiles,
+            width = simulationMap.layers.head.width,
+            height = simulationMap.layers.head.height
+          ).asJson)
         } yield res
     }
   }
