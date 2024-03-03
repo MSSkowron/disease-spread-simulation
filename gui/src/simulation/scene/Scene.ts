@@ -1,6 +1,6 @@
 import * as Phaser from 'phaser'
-import type { GridEngine, Position } from 'grid-engine'
-import { CollisionStrategy, Direction } from 'grid-engine'
+import type { GridEngine } from 'grid-engine'
+import { Direction } from 'grid-engine'
 import {
     CHARACTER_ASSET_KEY,
     LAYER_SCALE,
