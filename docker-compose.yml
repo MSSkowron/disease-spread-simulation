@@ -5,6 +5,11 @@ services:
     build:
       context: ./random-movement-server
       dockerfile: Dockerfile
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://server:8080/health"]
+      interval: 30s
+      retries: 5
+      start_period: 30s
     networks:
       - disease_network
     ports:
@@ -14,6 +19,11 @@ services:
     build:
       context: ./data-analytics-server
       dockerfile: Dockerfile
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://analytics:8081/health"]
+      interval: 30s
+      retries: 5
+      start_period: 30s
     networks:
       - disease_network
     ports:
@@ -24,8 +34,10 @@ services:
       context: ./gui
       dockerfile: Dockerfile
     depends_on:
-      - server
-      - analytics
+      server:
+        condition: service_healthy
+      analytics:
+        condition: service_healthy
     networks:
       - disease_network
     ports:

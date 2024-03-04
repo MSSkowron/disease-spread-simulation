@@ -44,6 +44,8 @@ object Routes {
             height = simulationMap.layers.head.height
           ).asJson)
         } yield res
+      case GET -> Root / "health" =>
+        Ok(Map("status" -> "ok").asJson)
     }
   }
 }

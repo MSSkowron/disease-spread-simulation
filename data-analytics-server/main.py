@@ -1,5 +1,6 @@
 import uvicorn
 from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from starlette.middleware.cors import CORSMiddleware
 import pandas as pd
@@ -25,6 +26,10 @@ async def root(item: DataList):
     corr_notna = ~corr.isna().all()
     corr = corr.loc[corr_notna, corr_notna]
     return corr
+
+@app.get("/health")
+async def health_check():
+    return JSONResponse(content={"status": "ok"})
 
 if __name__ == "__main__":
     uvicorn.run(app, port=8081)
