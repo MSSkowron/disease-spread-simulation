@@ -257,9 +257,6 @@ export default class Scene extends Phaser.Scene {
     addPlayer(id: string, home: Coordinates, direction: Direction): void {
         const sprite = this.add.sprite(0, 0, CHARACTER_ASSET_KEY)
 
-        // sprite.setInteractive()
-        // sprite.on('pointerdown', (pointer: Phaser.Input.Pointer) => {})
-
         const container = this.add.container(0, 0, [sprite])
 
         this.gridEngine.addCharacter({
