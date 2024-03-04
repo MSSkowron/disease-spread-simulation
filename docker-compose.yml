@@ -6,7 +6,7 @@ services:
       context: ./random-movement-server
       dockerfile: Dockerfile
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://server:8080/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
       retries: 5
       start_period: 30s
@@ -20,7 +20,7 @@ services:
       context: ./data-analytics-server
       dockerfile: Dockerfile
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://analytics:8081/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8081/health"]
       interval: 30s
       retries: 5
       start_period: 30s
