@@ -9,12 +9,23 @@ services:
       - disease_network
     ports:
       - "8080:8080"
+  
+  analytics:
+    build:
+      context: ./data-analytics-server
+      dockerfile: Dockerfile
+    networks:
+      - disease_network
+    ports:
+      - "8081:8081"
+  
   gui:
     build:
       context: ./gui
       dockerfile: Dockerfile
     depends_on:
       - server
+      - analytics
     networks:
       - disease_network
     ports:

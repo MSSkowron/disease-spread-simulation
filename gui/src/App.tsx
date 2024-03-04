@@ -6,6 +6,9 @@ import simulationJSON from '../assets/simulation.json'
 
 const RANDOM_MOVEMENT_SERVER_API_URL: string = import.meta.env
     .VITE_RANDOM_MOVEMENT_SERVER_API_URL as string
+const ANALYTICS_SERVER_API_URL: string = import.meta.env
+    .VITE_ANALYTICS_SERVER_API_URL as string
+export const analyticsData: AnalData[] = []
 
 export interface MapData {
     id: string,
@@ -13,6 +16,15 @@ export interface MapData {
         x: number,
         y: number,
     }[],
+}
+
+export interface AnalData {
+    noPeople: number,
+    time: number,
+    probabilityOfInfection: number,
+    probabilityOfInfectionAtStart: number,
+    avg: number,
+    max: number,
 }
 
 const shuffle = (array: any[]) => {
@@ -28,6 +40,20 @@ const shuffle = (array: any[]) => {
     }
   
     return array;
+}
+
+const getCorrelation = () => {
+    axios.post(`${ANALYTICS_SERVER_API_URL}/analysis`, JSON.stringify({data: analyticsData}) ,{
+        headers: {
+            'Content-Type': 'application/json'
+          }
+    })
+    .then((response) => {
+        console.log(response.data)
+    })
+    .catch((error) => {
+        console.error(error)
+    })
 }
 
 const App = () => {
@@ -58,18 +84,32 @@ const App = () => {
         .then((response) => {
             const data: MapData = response.data
             shuffle(data.privateTiles)
-            const simulationData = startSimulation(response.data, numberOfPlayers, timeOfSimulation * 1000, probabilityOfInfectionNumber ,probabilityOfInfectionAtTheBeginningNumber, () => {
-                stopSimulation(simulationData!)
-                document.body.style.overflow = 'auto'
-                setIsSimulationOn(false)
-                setNumberOfPlayers(200)
-                setTimeOfSimulation(10)
-                setProbabilityOfInfection('0.2')
-                setProbabilityOfInfectionAtTheBeginning('0.1')
-                setNumberOfIll(0)
-            }, (n : number) => {
-                setNumberOfIll(n)
-            })
+            const simulationData = startSimulation(
+                response.data, 
+                numberOfPlayers, 
+                timeOfSimulation * 1000, 
+                probabilityOfInfectionNumber, 
+                probabilityOfInfectionAtTheBeginningNumber, 
+                (avg: number, max: number) => {
+                    analyticsData.push({
+                        noPeople: numberOfPlayers,
+                        time: timeOfSimulation,
+                        probabilityOfInfection: probabilityOfInfectionNumber,
+                        probabilityOfInfectionAtStart: probabilityOfInfectionAtTheBeginningNumber,
+                        avg: avg,
+                        max: max})
+                    stopSimulation(simulationData!)
+                    document.body.style.overflow = 'auto'
+                    setIsSimulationOn(false)
+                    setNumberOfPlayers(200)
+                    setTimeOfSimulation(10)
+                    setProbabilityOfInfection('0.2')
+                    setProbabilityOfInfectionAtTheBeginning('0.1')
+                    setNumberOfIll(0)
+                },
+                (n : number) => {
+                    setNumberOfIll(n)
+                })
             document.body.style.overflow = 'hidden'
             setIsSimulationOn(true)
         })
@@ -113,6 +153,7 @@ const App = () => {
                     }}/>
                 </div>
                 <button className='pe-auto' onClick={start}>Start Simulation</button>
+                <button className='pe-auto' onClick={getCorrelation}>Analyse Data</button>
             </div>
         </div>
     )

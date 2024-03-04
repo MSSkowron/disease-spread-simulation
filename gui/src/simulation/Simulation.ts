@@ -14,7 +14,7 @@ export const startSimulation = (
     timeOfSimulation: number,
     probabilityOfInfection: number,
     probabilityOfInfectionAtTheBeginning: number,
-    onStop: () => void,
+    onStop: (avg: number, max: number) => void,
     setNumberOfIll: (n : number) => void,
 ): SimulationData => {
     const scene = new Scene(data, numberOfPlayers, timeOfSimulation, probabilityOfInfection, probabilityOfInfectionAtTheBeginning, onStop, setNumberOfIll)
