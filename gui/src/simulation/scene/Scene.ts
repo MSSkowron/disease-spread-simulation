@@ -74,9 +74,9 @@ export default class Scene extends Phaser.Scene {
         this.setNumberOfIll = setNumberOfIll
 
         this.tiles = [];
-        for(var i: number = 0; i < 80; i++) {
+        for(var i: number = 0; i < this.mapData.width; i++) {
             this.tiles[i] = [];
-            for(var j: number = 0; j < 80; j++) {
+            for(var j: number = 0; j < this.mapData.height; j++) {
                 this.tiles[i][j] = 0;
             }
         }
@@ -156,7 +156,7 @@ export default class Scene extends Phaser.Scene {
                 var sum = 0
                 for(let i=-1; i<2; i++){
                     for(let j=-1; j<2; j++){
-                        if(enterTile.x + i > 0 && enterTile.x + i < 79 && enterTile.y + j > 0 && enterTile.y + j < 79) {
+                        if(enterTile.x + i > 0 && enterTile.x + i < this.mapData.width - 1 && enterTile.y + j > 0 && enterTile.y + j < this.mapData.height - 1) {
                             sum = sum + this.tiles[enterTile.x + i][enterTile.y + j]
                         }
                     }
@@ -214,7 +214,7 @@ export default class Scene extends Phaser.Scene {
                     var sum = 0
                     for(let i=-1; i<2; i++){
                         for(let j=-1; j<2; j++){
-                            if(enterTile.x + i > 0 && enterTile.x + i < 79 && enterTile.y + j > 0 && enterTile.y + j < 79) {
+                            if(enterTile.x + i > 0 && enterTile.x + i < this.mapData.width - 1 && enterTile.y + j > 0 && enterTile.y + j < this.mapData.height - 1) {
                                 sum = sum + this.tiles[enterTile.x + i][enterTile.y + j]
                             }
                         }

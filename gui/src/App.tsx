@@ -16,6 +16,8 @@ export interface MapData {
         x: number,
         y: number,
     }[],
+    width: number,
+    height: number,
 }
 
 export interface AnalData {
@@ -85,7 +87,7 @@ const App = () => {
             const data: MapData = response.data
             shuffle(data.privateTiles)
             const simulationData = startSimulation(
-                response.data, 
+                data, 
                 numberOfPlayers, 
                 timeOfSimulation * 1000, 
                 probabilityOfInfectionNumber, 
