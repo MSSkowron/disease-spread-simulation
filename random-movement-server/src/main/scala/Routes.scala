@@ -1,5 +1,6 @@
 import Types.MapStructure.{MapLayer, SimulationMap}
 import Types.{MapInfo, MapResponse}
+import cats._
 import cats.effect._
 import cats.implicits._
 import org.http4s.circe._
@@ -44,8 +45,20 @@ object Routes {
             height = simulationMap.layers.head.height
           ).asJson)
         } yield res
+    }
+  }
+
+  def toolRoutes[F[_] : Monad]: HttpRoutes[F] = {
+    val dsl = Http4sDsl[F]
+    import dsl._
+
+    HttpRoutes.of[F] {
       case GET -> Root / "health" =>
         Ok(Map("status" -> "ok").asJson)
     }
+  }
+
+  def allRoutes[F[_] : Concurrent]: HttpRoutes[F] = {
+    mapRoutes <+> toolRoutes
   }
 }

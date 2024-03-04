@@ -9,7 +9,7 @@ import scala.concurrent.ExecutionContext.global
 object App extends IOApp{
   override def run(args: List[String]): IO[ExitCode] = {
     val apis = Router(
-      "/" -> Routes.mapRoutes[IO],
+      "/" -> Routes.allRoutes[IO],
     ).orNotFound
 
     BlazeServerBuilder[IO](global)
