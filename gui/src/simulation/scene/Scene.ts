@@ -47,7 +47,9 @@ export default class Scene extends Phaser.Scene {
     private readonly players: {
         [id: string]: { isHome: boolean; home: Coordinates; sprite: Phaser.GameObjects.Sprite; coords: Coordinates, isIll: boolean }
     } = {}
+    private readonly playerIds: string[] = []
     private tiles: integer[][]
+    private timeDelta: integer = 0
 
     constructor(
         mapData: MapData,
@@ -114,23 +116,32 @@ export default class Scene extends Phaser.Scene {
             this.addPlayer(i.toString(), { x: home.x, y: home.y }, Direction.DOWN)
         }
 
-        this.gridEngine.movementStopped().subscribe(({ charId, direction }) => {
+        this.gridEngine.movementStopped().subscribe(({ charId }) => {
             if (this.players[charId].isHome) {
                 setTimeout(
                     () => {
                         this.players[charId].isHome = false
                         this.randomMovePlayer(charId)
                     },
-                    Math.random() * 10000 + 500,
+                    Math.random() * 5000 + 3000,
                 )
             } else {
-                setTimeout(
-                    () => {
-                        this.players[charId].isHome = true
-                        this.movePlayer(charId, this.players[charId].home)
-                    },
-                    Math.random() * 10000 + 500,
-                )
+                if (Math.random() < 0.5) {
+                    setTimeout(
+                        () => {
+                            this.players[charId].isHome = true
+                            this.movePlayer(charId, this.players[charId].home)
+                        },
+                        Math.random() * 5000 + 3000,
+                    )
+                } else {
+                    setTimeout(
+                        () => {
+                            this.randomMovePlayer(charId)
+                        },
+                        Math.random() * 5000 + 3000,
+                    )
+                }
             }
         })
 
@@ -139,11 +150,14 @@ export default class Scene extends Phaser.Scene {
                 this.tiles[exitTile.x][exitTile.y] -= 1
                 this.tiles[enterTile.x][enterTile.y] += 1
             } else {
-                var sum = this.tiles[enterTile.x][enterTile.y]
-                sum = sum + enterTile.x > 0 ? this.tiles[enterTile.x - 1][enterTile.y] : 0
-                sum = sum + enterTile.x < 79 ? this.tiles[enterTile.x + 1][enterTile.y] : 0
-                sum = sum + enterTile.y > 0 ? this.tiles[enterTile.x][enterTile.y - 1] : 0
-                sum = sum + enterTile.y < 79 ? this.tiles[enterTile.x][enterTile.y + 1] : 0
+                var sum = 0
+                for(let i=-1; i<2; i++){
+                    for(let j=-1; j<2; j++){
+                        if(enterTile.x + i > 0 && enterTile.x + i < 79 && enterTile.y + j > 0 && enterTile.y + j < 79) {
+                            sum = sum + this.tiles[enterTile.x + i][enterTile.y + j]
+                        }
+                    }
+                }
                 this.players[charId].isIll = Math.random() < sum * this.probabilityOfInfection
                 if (this.players[charId].isIll) {
                     this.tiles[enterTile.x][enterTile.y] += 1
@@ -152,13 +166,15 @@ export default class Scene extends Phaser.Scene {
                     this.gridEngine.setWalkingAnimationMapping(charId, 1)
 
                     setTimeout(
-                        () => {
-                            this.tiles[this.players[charId].coords.x][this.players[charId].coords.y] -= 1
+                        (player: { isHome: boolean; home: Coordinates; sprite: Phaser.GameObjects.Sprite; coords: Coordinates, isIll: boolean }) => {
+                            this.tiles[player.coords.x][player.coords.y] -= 1
                             this.numberOfIll--
                             this.setNumberOfIll(this.numberOfIll)
                             this.gridEngine.setWalkingAnimationMapping(charId, 0)
+                            player.isIll = false
                         },
-                        Math.random() * 10000 + 500,
+                        Math.random() * 10000 + 20000,
+                        this.players[charId],
                     )
                 }
             }
@@ -178,6 +194,46 @@ export default class Scene extends Phaser.Scene {
         setTimeout(() => {
             this.stop()
         }, this.timeOfSimulation)
+    }
+
+    update(time: number): void {
+        if (time - this.timeDelta > 1000) {
+            this.timeDelta = time
+            this.playerIds.forEach(el => {
+                if(!this.gridEngine.isMoving(el) && !this.players[el].isIll) {
+                    
+                    const enterTile = this.players[el].coords
+                    var sum = 0
+                    for(let i=-1; i<2; i++){
+                        for(let j=-1; j<2; j++){
+                            if(enterTile.x + i > 0 && enterTile.x + i < 79 && enterTile.y + j > 0 && enterTile.y + j < 79) {
+                                sum = sum + this.tiles[enterTile.x + i][enterTile.y + j]
+                            }
+                        }
+                    }
+                    this.players[el].isIll = Math.random() < sum * this.probabilityOfInfection
+                    if (this.players[el].isIll) {
+                        this.tiles[enterTile.x][enterTile.y] += 1
+                        this.numberOfIll++
+                        this.setNumberOfIll(this.numberOfIll)
+                        this.gridEngine.setWalkingAnimationMapping(el, 1)
+    
+                        setTimeout(
+                            (player: { isHome: boolean; home: Coordinates; sprite: Phaser.GameObjects.Sprite; coords: Coordinates, isIll: boolean }) => {
+                                this.tiles[player.coords.x][player.coords.y] -= 1
+                                this.numberOfIll--
+                                this.setNumberOfIll(this.numberOfIll)
+                                this.gridEngine.setWalkingAnimationMapping(el, 0)
+                                player.isIll = false
+                            },
+                            Math.random() * 10000 + 20000,
+                            this.players[el],
+                        )
+                    }
+
+                }
+            })
+        }
     }
 
     printIll(): void {
@@ -206,31 +262,33 @@ export default class Scene extends Phaser.Scene {
             },
         })
 
-        let ill = false
+        this.playerIds.push(id)
+        this.players[id] = {
+            isHome: true,
+            home: home,
+            sprite,
+            coords: {x: home.x, y: home.y},
+            isIll: false
+        }
+
         if (Math.random() < this.probabilityOfInfectionAtTheBeginning) {
-            ill = true
+            this.players[id].isIll = true
             this.tiles[home.x][home.y] = 1
             this.numberOfIll++
             this.setNumberOfIll(this.numberOfIll)
             this.gridEngine.setWalkingAnimationMapping(id, 1)
 
             setTimeout(
-                () => {
-                    this.tiles[this.players[id].coords.x][this.players[id].coords.y] -= 1
+                (player: { isHome: boolean; home: Coordinates; sprite: Phaser.GameObjects.Sprite; coords: Coordinates, isIll: boolean }) => {
+                    this.tiles[player.coords.x][player.coords.y] -= 1
                     this.numberOfIll--
                     this.setNumberOfIll(this.numberOfIll)
                     this.gridEngine.setWalkingAnimationMapping(id, 0)
+                    player.isIll = false
                 },
-                Math.random() * 10000 + 2000,
+                Math.random() * 10000 + 20000,
+                this.players[id],
             )
-        }
-
-        this.players[id] = {
-            isHome: true,
-            home: home,
-            sprite,
-            coords: {x: home.x, y: home.y},
-            isIll: ill
         }
     }
 
