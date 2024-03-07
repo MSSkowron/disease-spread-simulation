@@ -23,8 +23,8 @@ export interface MapData {
 export interface AnalData {
     noPeople: number,
     time: number,
-    probabilityOfInfection: number,
-    probabilityOfInfectionAtStart: number,
+    infProb: number,
+    infProbBeg: number,
     avg: number,
     max: number,
 }
@@ -51,7 +51,65 @@ const getCorrelation = () => {
           }
     })
     .then((response) => {
-        console.log(response.data)
+        const grid = document.getElementById('grid')
+        const size = Object.keys(response.data).length + 1
+        const keys = Object.keys(response.data)
+        if (!grid) return
+        while (grid.firstChild) {
+            grid.removeChild(grid.firstChild);
+        }
+
+        grid.style.gridTemplateColumns = "auto ".repeat(size)
+        for (let i=0; i<size; i++) {
+            for (let j=0; j<size; j++) {
+                if (i == j && i == 0) {
+                    const el = document.createElement('div')
+                    el.style.border = '2px black solid'
+                    el.style.fontSize = 'xx-small'
+                    el.style.fontWeight = '700'
+                    el.style.backgroundColor = 'white'
+                    el.style.width = '55px'
+                    el.style.height = '55px'
+                    grid.appendChild(el)
+                } else if (i == 0) {
+                    const el = document.createElement('div')
+                    el.style.border = '2px black solid'
+                    el.style.fontSize = 'xx-small'
+                    el.style.fontWeight = '700'
+                    el.style.backgroundColor = 'white'
+                    el.style.width = '55px'
+                    el.style.height = '55px'
+                    el.style.textAlign = 'center'
+                    el.innerText = keys[j-1]
+                    grid.appendChild(el)
+                } else if (j == 0) {
+                    const el = document.createElement('div')
+                    el.style.border = '2px black solid'
+                    el.style.fontSize = 'xx-small'
+                    el.style.fontWeight = '700'
+                    el.style.backgroundColor = 'white'
+                    el.style.width = '55px'
+                    el.style.height = '55px'
+                    el.style.textAlign = 'center'
+                    el.innerHTML = keys[i-1]
+                    grid.appendChild(el)
+                } else {
+                    const el = document.createElement('div')
+                    el.style.border = '2px black solid'
+                    el.style.fontSize = 'xx-small'
+                    el.style.fontWeight = '700'
+                    const corr = response.data[keys[i-1]][keys[j-1]]
+                    el.style.backgroundColor = `rgb(${110 + (corr * 100)}, 0, ${110 - (corr * 100)})`
+                    if (i == j) el.style.backgroundColor = 'white'
+                    el.style.width = '55px'
+                    el.style.height = '55px'
+                    grid.appendChild(el)
+                }
+            }
+        }
+        for (const key in response.data) {
+            console.log(response.data[key])
+        }
     })
     .catch((error) => {
         console.error(error)
@@ -136,8 +194,8 @@ const App = () => {
                     analyticsData.push({
                         noPeople: numberOfPlayers,
                         time: timeOfSimulation,
-                        probabilityOfInfection: probabilityOfInfectionNumber,
-                        probabilityOfInfectionAtStart: probabilityOfInfectionAtTheBeginningNumber,
+                        infProb: probabilityOfInfectionNumber,
+                        infProbBeg: probabilityOfInfectionAtTheBeginningNumber,
                         avg: avg,
                         max: max})
                     stopSimulation(simulationData!)
@@ -178,15 +236,15 @@ const App = () => {
     }
 
     return (
-        <div style={{height: '100vh', width: '100vw'}}>
+        <div style={{minHeight: '100vh', maxWidth: '100vw'}}>
             <div id='simulation-content' style={{display: `${isSimulationOn ? 'flex' : 'none'}`}} className='w-100 h-100 flex-row-reverse'>
                 <div className='flex-grow-1 d-flex flex-column justify-content-center align-items-center'>
                     <h1>Simulation</h1>
                     <p>Number of ill: <strong>{numberOfIll}</strong></p>
                 </div>
             </div>
-            <div id='simulation-form' style={{display: `${isSimulationOn ? 'none' : 'flex'}`}} className='m-auto w-90 h-100 py-20 flex-column justify-content-center align-items-center row-gap-2'>
-                <h1>Simulation</h1>
+            <div id='simulation-form' style={{display: `${isSimulationOn ? 'none' : 'flex'}`}} className='m-auto w-90 h-100 y-20 flex-column justify-content-center align-items-center row-gap-2'>
+                <h1 style={{marginTop: '40px'}}>Simulation</h1>
                 <div className='my-4 w-100 h-500 d-flex flex-row justify-content-center align-items-center row-gap-4'>
                     <div className='m-auto w-90 h-50 d-flex flex-column justify-content-center align-items-center row-gap-1'>
                         <h3>Standard Params</h3>
@@ -298,7 +356,8 @@ const App = () => {
                     </div>
                 </div>
                 <button className='pe-auto' onClick={start}>Start Simulation</button>
-                <button className='pe-auto' style={{display: `${analyticsData.length == 0 ? 'none' : 'block'}`}} onClick={getCorrelation}>Analyse Data</button>
+                <button className='pe-auto' style={{display: `${analyticsData.length <= 1 ? 'none' : 'block'}`}} onClick={getCorrelation}>Analyse Data</button>
+                <div id='grid' style={{display:'grid', gridTemplateColumns:'auto auto auto auto ', backgroundColor:'black', padding:'10px'}}></div>
             </div>
         </div>
     )
