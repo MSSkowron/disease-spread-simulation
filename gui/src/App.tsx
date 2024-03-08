@@ -27,6 +27,18 @@ export interface AnalData {
     infProbBeg: number,
     avg: number,
     max: number,
+    recoTi: number,
+    recoTiDis: number,
+    immTi: number,
+    immTiDis: number,
+    immRate: number,
+    pubSpTi: number,
+    pubSpTiDis: number,
+    prvSpTi: number,
+    prvSpTiDis: number,
+    illTiSpHom: number,
+    SprdRange: number,
+    walkSpeed: number,
 }
 
 const shuffle = (array: any[]) => {
@@ -197,7 +209,20 @@ const App = () => {
                         infProb: probabilityOfInfectionNumber,
                         infProbBeg: probabilityOfInfectionAtTheBeginningNumber,
                         avg: avg,
-                        max: max})
+                        max: max,
+                        recoTi: recoveryTime,
+                        recoTiDis: recoveryTimeDispersion,
+                        immTi: immunityTime,
+                        immTiDis: immunityTimeDispersion,
+                        immRate: immunityRateNumber,
+                        pubSpTi: publicPlaceSpendingTime,
+                        pubSpTiDis: publicPlaceSpendingTimeDispersion,
+                        prvSpTi: privatePlaceSpendingTime,
+                        prvSpTiDis: privatePlaceSpendingTimeDispersion,
+                        illTiSpHom: timeSpendingInHomeWhenIll,
+                        SprdRange: rangeOfDiseaseSpread,
+                        walkSpeed: walkingSpeed,
+                    })
                     stopSimulation(simulationData!)
                     document.body.style.overflow = 'auto'
                     setIsSimulationOn(false)
@@ -294,7 +319,7 @@ const App = () => {
                             }}/>
                         </div>
                         <div className='w-100 d-flex flex-column'>
-                            <label htmlFor='immunityTimeDispersion'>Time of simulation (in seconds)</label>
+                            <label htmlFor='immunityTimeDispersion'>Immunity time dispersion (in seconds)</label>
                             <input id='immunityTimeDispersion' type='number' min={0} max={100} value={immunityTimeDispersion} onChange={(e) => {
                                 setImmunityTimeDispersion(parseInt(e.target.value))
                             }}/>
