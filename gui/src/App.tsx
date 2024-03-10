@@ -71,7 +71,6 @@ const shuffle = (array: any[]) => {
     while (currentIndex > 0) {
         randomIndex = Math.floor(Math.random() * currentIndex)
         currentIndex--
-
         ;[array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]]
     }
 
@@ -303,6 +302,89 @@ const App = () => {
             })
     }
 
+    const startNextSimulation = async (
+        configData: SimulationConfig,
+        data: MapData,
+        index: number,
+    ) => {
+        if (index >= configData.no_simulations) {
+            document.body.style.overflow = 'auto'
+            setIsSimulationOn(false)
+
+            setNumberOfPlayers(200)
+            setTimeOfSimulation(10)
+            setProbabilityOfInfection('0.2')
+            setProbabilityOfInfectionAtTheBeginning('0.1')
+
+            setRecoveryTime(10)
+            setRecoveryTimeDispersion(5)
+            setImmunityTime(0)
+            setImmunityTimeDispersion(0)
+            setImmunityRate('0.0')
+
+            setPublicPlaceSpendingTime(2)
+            setPublicPlaceSpendingTimeDispersion(1)
+            setPrivatePlaceSpendingTime(2)
+            setPrivatePlaceSpendingTimeDispersion(1)
+
+            setTimeSpendingInHomeWhenIll(0)
+            setRangeOfDiseaseSpread(1)
+            setWalkingSpeed(5)
+
+            setNumberOfIll(0)
+            return
+        }
+
+        const simulationData = startSimulation(
+            data,
+            configData.numberOfPlayers,
+            configData.timeOfSimulation * 1000,
+            configData.data[index].probabilityOfInfection,
+            configData.data[index].probabilityOfInfectionAtTheBeginning,
+            configData.data[index].recoveryTime * 1000,
+            configData.data[index].recoveryTimeDispersion * 1000,
+            configData.data[index].immunityTime * 1000,
+            configData.data[index].immunityTimeDispersion * 1000,
+            configData.data[index].immunityRate,
+            configData.data[index].publicPlaceSpendingTime * 1000,
+            configData.data[index].publicPlaceSpendingTimeDispersion * 1000,
+            configData.data[index].privatePlaceSpendingTime * 1000,
+            configData.data[index].privatePlaceSpendingTimeDispersion * 1000,
+            configData.data[index].timeSpendingInHomeWhenIll * 1000,
+            configData.data[index].rangeOfDiseaseSpread,
+            configData.data[index].walkingSpeed,
+            (avg: number, max: number) => {
+                analyticsData.push({
+                    noPeople: configData.numberOfPlayers,
+                    time: configData.timeOfSimulation,
+                    infProb: configData.data[index].probabilityOfInfection,
+                    infProbBeg: configData.data[index].probabilityOfInfectionAtTheBeginning,
+                    avg: avg,
+                    max: max,
+                    recoTi: configData.data[index].recoveryTime,
+                    recoTiDis: configData.data[index].recoveryTimeDispersion,
+                    immTi: configData.data[index].immunityTime,
+                    immTiDis: configData.data[index].immunityTimeDispersion,
+                    immRate: configData.data[index].immunityRate,
+                    pubSpTi: configData.data[index].publicPlaceSpendingTime,
+                    pubSpTiDis: configData.data[index].publicPlaceSpendingTimeDispersion,
+                    prvSpTi: configData.data[index].privatePlaceSpendingTime,
+                    prvSpTiDis: configData.data[index].privatePlaceSpendingTimeDispersion,
+                    illTiSpHom: configData.data[index].timeSpendingInHomeWhenIll,
+                    SprdRange: configData.data[index].rangeOfDiseaseSpread,
+                    walkSpeed: configData.data[index].walkingSpeed,
+                })
+                stopSimulation(simulationData!)
+                setNumberOfIll(0)
+
+                startNextSimulation(configData, data, index + 1)
+            },
+            (n: number) => {
+                setNumberOfIll(n)
+            },
+        )
+    }
+
     const startFromConfig = async () => {
         if (!configFile) {
             alert('Please upload a valid JSON configuration file.')
@@ -314,7 +396,29 @@ const App = () => {
             reader.onload = async (event) => {
                 try {
                     const configData: SimulationConfig = JSON.parse(event.target?.result as string)
-                    console.log('Config Data:', configData)
+
+                    if (configData.data.length < 1) {
+                        alert('Please provide at least one set of simulation data.')
+                        setConfigFile(null)
+                        return
+                    }
+
+                    await axios
+                        .post(`${RANDOM_MOVEMENT_SERVER_API_URL}/map`, simulationJSON, {
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                        })
+                        .then((response) => {
+                            const data: MapData = response.data
+                            shuffle(data.privateTiles)
+                            document.body.style.overflow = 'hidden'
+                            setIsSimulationOn(true)
+                            startNextSimulation(configData, data, 0)
+                        })
+                        .catch((error) => {
+                            console.error(error)
+                        })
                 } catch (error) {
                     console.error('Error parsing JSON:', error)
                     alert('Error parsing JSON. Please check your file format.')
@@ -326,89 +430,6 @@ const App = () => {
             alert('Error reading the file. Please try again.')
         }
     }
-
-    // await axios.post(`${RANDOM_MOVEMENT_SERVER_API_URL}/map`, simulationJSON ,{
-    //     headers: {
-    //         'Content-Type': 'application/json'
-    //       }
-    // })
-    // .then((response) => {
-    //     const data: MapData = response.data
-    //     shuffle(data.privateTiles)
-    //     const simulationData = startSimulation(
-    //         data,
-    //         numberOfPlayers,
-    //         timeOfSimulation * 1000,
-    //         probabilityOfInfectionNumber,
-    //         probabilityOfInfectionAtTheBeginningNumber,
-    //         recoveryTime * 1000,
-    //         recoveryTimeDispersion * 1000,
-    //         immunityTime * 1000,
-    //         immunityTimeDispersion * 1000,
-    //         immunityRateNumber,
-    //         publicPlaceSpendingTime * 1000,
-    //         publicPlaceSpendingTimeDispersion * 1000,
-    //         privatePlaceSpendingTime * 1000,
-    //         privatePlaceSpendingTimeDispersion * 1000,
-    //         timeSpendingInHomeWhenIll * 1000,
-    //         rangeOfDiseaseSpread,
-    //         walkingSpeed,
-    //         (avg: number, max: number) => {
-    //             analyticsData.push({
-    //                 noPeople: numberOfPlayers,
-    //                 time: timeOfSimulation,
-    //                 infProb: probabilityOfInfectionNumber,
-    //                 infProbBeg: probabilityOfInfectionAtTheBeginningNumber,
-    //                 avg: avg,
-    //                 max: max,
-    //                 recoTi: recoveryTime,
-    //                 recoTiDis: recoveryTimeDispersion,
-    //                 immTi: immunityTime,
-    //                 immTiDis: immunityTimeDispersion,
-    //                 immRate: immunityRateNumber,
-    //                 pubSpTi: publicPlaceSpendingTime,
-    //                 pubSpTiDis: publicPlaceSpendingTimeDispersion,
-    //                 prvSpTi: privatePlaceSpendingTime,
-    //                 prvSpTiDis: privatePlaceSpendingTimeDispersion,
-    //                 illTiSpHom: timeSpendingInHomeWhenIll,
-    //                 SprdRange: rangeOfDiseaseSpread,
-    //                 walkSpeed: walkingSpeed,
-    //             })
-    //             stopSimulation(simulationData!)
-    //             document.body.style.overflow = 'auto'
-    //             setIsSimulationOn(false)
-
-    //             setNumberOfPlayers(200)
-    //             setTimeOfSimulation(10)
-    //             setProbabilityOfInfection('0.2')
-    //             setProbabilityOfInfectionAtTheBeginning('0.1')
-
-    //             setRecoveryTime(10)
-    //             setRecoveryTimeDispersion(5)
-    //             setImmunityTime(0)
-    //             setImmunityTimeDispersion(0)
-    //             setImmunityRate("0.0")
-
-    //             setPublicPlaceSpendingTime(2)
-    //             setPublicPlaceSpendingTimeDispersion(1)
-    //             setPrivatePlaceSpendingTime(2)
-    //             setPrivatePlaceSpendingTimeDispersion(1)
-
-    //             setTimeSpendingInHomeWhenIll(0)
-    //             setRangeOfDiseaseSpread(1)
-    //             setWalkingSpeed(5)
-
-    //             setNumberOfIll(0)
-    //         },
-    //         (n : number) => {
-    //             setNumberOfIll(n)
-    //         })
-    //     document.body.style.overflow = 'hidden'
-    //     setIsSimulationOn(true)
-    // })
-    // .catch((error) => {
-    //     console.error(error)
-    // })
 
     return (
         <div style={{ minHeight: '100vh', maxWidth: '100vw' }}>
