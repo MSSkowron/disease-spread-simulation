@@ -58,11 +58,16 @@ export const startSimulation = (
         },
         render: {
             antialias: false,
+            pixelArt: true,
+            powerPreference: 'high-performance',
         },
+        backgroundColor: '#ffffff',
+        height: '900',
+        fps: { target: 30 },
         scale: {
-            parent: 'simulation-content',
             mode: Phaser.Scale.ScaleModes.NONE,
-            height: '100%',
+            autoCenter: Phaser.Scale.CENTER_VERTICALLY,
+            autoRound: true,
         },
         parent: 'simulation-content',
         scene: scene,

@@ -436,13 +436,16 @@ const App = () => {
             <div
                 id='simulation-content'
                 style={{ display: `${isSimulationOn ? 'flex' : 'none'}` }}
-                className='w-100 h-100 flex-row-reverse'
+                className='w-100 vh-100 flex-row-reverse'
             >
                 <div className='flex-grow-1 d-flex flex-column justify-content-center align-items-center'>
-                    <h1>Simulation</h1>
-                    <p>
-                        Number of ill: <strong>{numberOfIll}</strong>
-                    </p>
+                    <div>
+                        <h1>Simulation</h1>
+                        <p>
+                            Number of ill: <strong>{numberOfIll}</strong>
+                        </p>
+                    </div>
+                    <div>{/* TODO: Add a chart showing the number of ill people over time */}</div>
                 </div>
             </div>
             <div
@@ -714,19 +717,30 @@ const App = () => {
                 <div className='d-flex justify-content-center align-items-center column-gap-1'>
                     {configFile && (
                         <button className='pe-auto' onClick={startFromConfig}>
-                            {' '}
-                            Start Simulation from Config{' '}
+                            Start Simulation from Config File
                         </button>
                     )}
                     <button className='pe-auto' onClick={start}>
                         Start Simulation
                     </button>
+                </div>
+
+                <div className='d-flex justify-content-center align-items-center column-gap-1'>
                     <button
                         className='pe-auto'
                         style={{ display: `${analyticsData.length <= 1 ? 'none' : 'block'}` }}
                         onClick={getCorrelation}
                     >
                         Analyse Data
+                    </button>
+                    <button
+                        className='pe-auto'
+                        style={{ display: `${analyticsData.length <= 1 ? 'none' : 'block'}` }}
+                        onClick={() => {
+                            analyticsData.splice(0, analyticsData.length)
+                        }}
+                    >
+                        Clear analytics data
                     </button>
                 </div>
 

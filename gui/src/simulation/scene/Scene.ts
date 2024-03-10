@@ -124,8 +124,6 @@ export default class Scene extends Phaser.Scene {
                 this.tiles[i][j] = 0
             }
         }
-
-        console.log(this.tiles.length, this.tiles[0].length)
     }
 
     preload(): void {
