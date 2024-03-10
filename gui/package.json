@@ -11,12 +11,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@faker-js/faker": "^8.4.1",
     "axios": "^1.6.7",
     "bootstrap": "^5.3.3",
+    "chart.js": "^4.4.2",
+    "faker": "^6.6.6",
     "grid-engine": "^2.44.2",
     "phaser": "~3.70.0",
     "prettier": "^3.2.5",
     "react": "^18.2.0",
+    "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {

@@ -1,13 +1,44 @@
 import { useState } from 'react'
 import './App.css'
 import { startSimulation, stopSimulation } from './simulation/Simulation'
+import { Line } from 'react-chartjs-2'
 import axios from 'axios'
 import simulationJSON from '../assets/simulation.json'
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Title,
+    Tooltip,
+    Legend,
+} from 'chart.js'
+
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
+
+export const options = {
+    responsive: true,
+    plugins: {
+        legend: {
+            position: 'top' as const,
+        },
+    },
+}
 
 const RANDOM_MOVEMENT_SERVER_API_URL: string = import.meta.env
     .VITE_RANDOM_MOVEMENT_SERVER_API_URL as string
 const ANALYTICS_SERVER_API_URL: string = import.meta.env.VITE_ANALYTICS_SERVER_API_URL as string
-export const analyticsData: AnalData[] = []
+
+interface ChartData {
+    labels: string[]
+    datasets: {
+        label: string
+        data: number[]
+        borderColor: string
+        backgroundColor: string
+    }[]
+}
 
 interface SimulationConfigData {
     probabilityOfInfection: number
@@ -63,6 +94,8 @@ export interface AnalData {
     SprdRange: number
     walkSpeed: number
 }
+
+export const analyticsData: AnalData[] = []
 
 const shuffle = (array: any[]) => {
     let currentIndex = array.length,
@@ -156,6 +189,17 @@ const App = () => {
     const [configFile, setConfigFile] = useState<File | null>(null)
 
     const [numberOfIll, setNumberOfIll] = useState<number>(0)
+    const [chartData, setChartData] = useState<ChartData>({
+        labels: [],
+        datasets: [
+            {
+                label: '',
+                data: [],
+                borderColor: 'rgb(255, 99, 132)',
+                backgroundColor: 'rgba(255, 99, 132, 0.5)',
+            },
+        ],
+    })
 
     const [numberOfPlayers, setNumberOfPlayers] = useState<number>(200)
     const [timeOfSimulation, setTimeOfSimulation] = useState<number>(10)
@@ -292,6 +336,20 @@ const App = () => {
                     },
                     (n: number) => {
                         setNumberOfIll(n)
+                        chartData.labels.push(new Date().toLocaleTimeString())
+                        chartData.datasets[0].data.push(n)
+
+                        setChartData({
+                            labels: chartData.labels,
+                            datasets: [
+                                {
+                                    label: 'Number of ill',
+                                    data: chartData.datasets[0].data,
+                                    borderColor: 'rgb(255, 99, 132)',
+                                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                                },
+                            ],
+                        })
                     },
                 )
                 document.body.style.overflow = 'hidden'
@@ -381,6 +439,8 @@ const App = () => {
             },
             (n: number) => {
                 setNumberOfIll(n)
+                chartData.labels.push(new Date().toLocaleTimeString())
+                chartData.datasets[0].data.push(n)
             },
         )
     }
@@ -445,7 +505,7 @@ const App = () => {
                             Number of ill: <strong>{numberOfIll}</strong>
                         </p>
                     </div>
-                    <div>{/* TODO: Add a chart showing the number of ill people over time */}</div>
+                    <Line data={chartData} options={options} />
                 </div>
             </div>
             <div
