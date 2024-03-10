@@ -57,7 +57,14 @@ export default class Scene extends Phaser.Scene {
     private readonly setNumberOfIll: (n: number) => void
 
     private readonly players: {
-        [id: string]: { isHome: boolean; home: Coordinates; sprite: Phaser.GameObjects.Sprite; coords: Coordinates, isIll: boolean, hasImmunity: boolean }
+        [id: string]: {
+            isHome: boolean
+            home: Coordinates
+            sprite: Phaser.GameObjects.Sprite
+            coords: Coordinates
+            isIll: boolean
+            hasImmunity: boolean
+        }
     } = {}
     private readonly playerIds: string[] = []
     private tiles: integer[][]
@@ -110,11 +117,11 @@ export default class Scene extends Phaser.Scene {
         this.onStop = onStop
         this.setNumberOfIll = setNumberOfIll
 
-        this.tiles = [];
-        for(var i: number = 0; i < this.mapData.width; i++) {
-            this.tiles[i] = [];
-            for(var j: number = 0; j < this.mapData.height; j++) {
-                this.tiles[i][j] = 0;
+        this.tiles = []
+        for (var i: number = 0; i < this.mapData.width; i++) {
+            this.tiles[i] = []
+            for (var j: number = 0; j < this.mapData.height; j++) {
+                this.tiles[i][j] = 0
             }
         }
     }
@@ -158,29 +165,45 @@ export default class Scene extends Phaser.Scene {
 
         this.gridEngine.movementStopped().subscribe(({ charId }) => {
             if (this.players[charId].isHome) {
-                this.timeouts.push(setTimeout(
-                    () => {
-                        this.players[charId].isHome = false
-                        this.randomMovePlayer(charId)
-                    },
-                    Math.random() * (this.privatePlaceSpendingTimeDispersion * 2) + (this.privatePlaceSpendingTime - this.privatePlaceSpendingTimeDispersion) + (this.players[charId].isIll ? this.timeSpendingInHomeWhenIll : 0),
-                ))
-            } else {
-                if (Math.random() < 0.5 || (this.players[charId].isIll && this.timeSpendingInHomeWhenIll > 0) ) {
-                    this.timeouts.push(setTimeout(
+                this.timeouts.push(
+                    setTimeout(
                         () => {
-                            this.players[charId].isHome = true
-                            this.movePlayer(charId, this.players[charId].home)
-                        },
-                        Math.random() * (this.publicPlaceSpendingTimeDispersion * 2) + (this.publicPlaceSpendingTime - this.publicPlaceSpendingTimeDispersion),
-                    ))
-                } else {
-                    this.timeouts.push(setTimeout(
-                        () => {
+                            this.players[charId].isHome = false
                             this.randomMovePlayer(charId)
                         },
-                        Math.random() * (this.publicPlaceSpendingTimeDispersion * 2) + (this.publicPlaceSpendingTime - this.publicPlaceSpendingTimeDispersion),
-                    ))
+                        Math.random() * (this.privatePlaceSpendingTimeDispersion * 2) +
+                            (this.privatePlaceSpendingTime -
+                                this.privatePlaceSpendingTimeDispersion) +
+                            (this.players[charId].isIll ? this.timeSpendingInHomeWhenIll : 0),
+                    ),
+                )
+            } else {
+                if (
+                    Math.random() < 0.5 ||
+                    (this.players[charId].isIll && this.timeSpendingInHomeWhenIll > 0)
+                ) {
+                    this.timeouts.push(
+                        setTimeout(
+                            () => {
+                                this.players[charId].isHome = true
+                                this.movePlayer(charId, this.players[charId].home)
+                            },
+                            Math.random() * (this.publicPlaceSpendingTimeDispersion * 2) +
+                                (this.publicPlaceSpendingTime -
+                                    this.publicPlaceSpendingTimeDispersion),
+                        ),
+                    )
+                } else {
+                    this.timeouts.push(
+                        setTimeout(
+                            () => {
+                                this.randomMovePlayer(charId)
+                            },
+                            Math.random() * (this.publicPlaceSpendingTimeDispersion * 2) +
+                                (this.publicPlaceSpendingTime -
+                                    this.publicPlaceSpendingTimeDispersion),
+                        ),
+                    )
                 }
             }
         })
@@ -191,14 +214,23 @@ export default class Scene extends Phaser.Scene {
                 this.tiles[enterTile.x][enterTile.y] += 1
             } else {
                 var sum = 0
-                for(let i=-this.rangeOfDiseaseSpread; i<=this.rangeOfDiseaseSpread; i++){
-                    for(let j=-this.rangeOfDiseaseSpread; j<=this.rangeOfDiseaseSpread; j++){
-                        if(enterTile.x + i > 0 && enterTile.x + i < this.mapData.width - 1 && enterTile.y + j > 0 && enterTile.y + j < this.mapData.height - 1) {
+                for (let i = -this.rangeOfDiseaseSpread; i <= this.rangeOfDiseaseSpread; i++) {
+                    for (let j = -this.rangeOfDiseaseSpread; j <= this.rangeOfDiseaseSpread; j++) {
+                        if (
+                            enterTile.x + i > 0 &&
+                            enterTile.x + i < this.mapData.width - 1 &&
+                            enterTile.y + j > 0 &&
+                            enterTile.y + j < this.mapData.height - 1
+                        ) {
                             sum = sum + this.tiles[enterTile.x + i][enterTile.y + j]
                         }
                     }
                 }
-                this.players[charId].isIll = Math.random() < sum * this.probabilityOfInfection * (this.players[charId].hasImmunity ? (1 - this.immunityRate) : 1)
+                this.players[charId].isIll =
+                    Math.random() <
+                    sum *
+                        this.probabilityOfInfection *
+                        (this.players[charId].hasImmunity ? 1 - this.immunityRate : 1)
                 if (this.players[charId].isIll) {
                     this.tiles[enterTile.x][enterTile.y] += 1
                     this.numberOfIll++
@@ -206,35 +238,49 @@ export default class Scene extends Phaser.Scene {
                     this.setNumberOfIll(this.numberOfIll)
                     this.gridEngine.setWalkingAnimationMapping(charId, 1)
 
-                    this.timeouts.push(setTimeout(
-                        (player: { isHome: boolean; home: Coordinates; sprite: Phaser.GameObjects.Sprite; coords: Coordinates, isIll: boolean }) => {
-                            this.tiles[player.coords.x][player.coords.y] -= 1
-                            this.numberOfIll--
-                            this.setNumberOfIll(this.numberOfIll)
-                            this.gridEngine.setWalkingAnimationMapping(charId, 0)
-                            player.isIll = false
-                        },
-                        Math.random() * (this.recoveryTimeDispersion * 2) + (this.recoveryTime - this.recoveryTimeDispersion),
-                        this.players[charId],
-                    ))
+                    this.timeouts.push(
+                        setTimeout(
+                            (player: {
+                                isHome: boolean
+                                home: Coordinates
+                                sprite: Phaser.GameObjects.Sprite
+                                coords: Coordinates
+                                isIll: boolean
+                            }) => {
+                                this.tiles[player.coords.x][player.coords.y] -= 1
+                                this.numberOfIll--
+                                this.setNumberOfIll(this.numberOfIll)
+                                this.gridEngine.setWalkingAnimationMapping(charId, 0)
+                                player.isIll = false
+                            },
+                            Math.random() * (this.recoveryTimeDispersion * 2) +
+                                (this.recoveryTime - this.recoveryTimeDispersion),
+                            this.players[charId],
+                        ),
+                    )
                 }
             }
             this.players[charId].coords = enterTile
         })
 
         for (let i = 0; i < this.numberOfPlayers; i++) {
-            this.timeouts.push(setTimeout(
-                () => {
-                    this.players[i.toString()].isHome = false
-                    this.randomMovePlayer(i.toString())
-                },
-                Math.random() * (this.privatePlaceSpendingTimeDispersion * 2) + (this.privatePlaceSpendingTime - this.privatePlaceSpendingTimeDispersion),
-            ))
+            this.timeouts.push(
+                setTimeout(
+                    () => {
+                        this.players[i.toString()].isHome = false
+                        this.randomMovePlayer(i.toString())
+                    },
+                    Math.random() * (this.privatePlaceSpendingTimeDispersion * 2) +
+                        (this.privatePlaceSpendingTime - this.privatePlaceSpendingTimeDispersion),
+                ),
+            )
         }
 
-        this.timeouts.push(setInterval(() => {
-            this.avg_samples.push(this.numberOfIll)
-        }, 500))
+        this.timeouts.push(
+            setInterval(() => {
+                this.avg_samples.push(this.numberOfIll)
+            }, 500),
+        )
 
         setTimeout(() => {
             this.stop()
@@ -244,19 +290,31 @@ export default class Scene extends Phaser.Scene {
     update(time: number): void {
         if (time - this.timeDelta > 500) {
             this.timeDelta = time
-            this.playerIds.forEach(el => {
-                if(!this.gridEngine.isMoving(el) && !this.players[el].isIll) {
-                    
+            this.playerIds.forEach((el) => {
+                if (!this.gridEngine.isMoving(el) && !this.players[el].isIll) {
                     const enterTile = this.players[el].coords
                     var sum = 0
-                    for(let i=-this.rangeOfDiseaseSpread; i<=this.rangeOfDiseaseSpread; i++){
-                        for(let j=-this.rangeOfDiseaseSpread; j<=this.rangeOfDiseaseSpread; j++){
-                            if(enterTile.x + i > 0 && enterTile.x + i < this.mapData.width - 1 && enterTile.y + j > 0 && enterTile.y + j < this.mapData.height - 1) {
+                    for (let i = -this.rangeOfDiseaseSpread; i <= this.rangeOfDiseaseSpread; i++) {
+                        for (
+                            let j = -this.rangeOfDiseaseSpread;
+                            j <= this.rangeOfDiseaseSpread;
+                            j++
+                        ) {
+                            if (
+                                enterTile.x + i > 0 &&
+                                enterTile.x + i < this.mapData.width - 1 &&
+                                enterTile.y + j > 0 &&
+                                enterTile.y + j < this.mapData.height - 1
+                            ) {
                                 sum = sum + this.tiles[enterTile.x + i][enterTile.y + j]
                             }
                         }
                     }
-                    this.players[el].isIll = Math.random() < sum * this.probabilityOfInfection * (this.players[el].hasImmunity ? (1 - this.immunityRate) : 1)
+                    this.players[el].isIll =
+                        Math.random() <
+                        sum *
+                            this.probabilityOfInfection *
+                            (this.players[el].hasImmunity ? 1 - this.immunityRate : 1)
                     if (this.players[el].isIll) {
                         this.tiles[enterTile.x][enterTile.y] += 1
                         this.numberOfIll++
@@ -267,28 +325,43 @@ export default class Scene extends Phaser.Scene {
                         this.gridEngine.turnTowards(el, Direction.DOWN)
                         this.gridEngine.turnTowards(el, Direction.UP)
                         this.gridEngine.turnTowards(el, direction)
-    
-                        this.timeouts.push(setTimeout(
-                            (player: { isHome: boolean; home: Coordinates; sprite: Phaser.GameObjects.Sprite; coords: Coordinates, isIll: boolean }) => {
-                                this.tiles[player.coords.x][player.coords.y] -= 1
-                                this.numberOfIll--
-                                this.setNumberOfIll(this.numberOfIll)
-                                this.gridEngine.setWalkingAnimationMapping(el, 0)
-                                player.isIll = false
-                            },
-                            Math.random() * (this.recoveryTimeDispersion * 2) + (this.recoveryTime - this.recoveryTimeDispersion),
-                            this.players[el],
-                        ))
-                    }
 
+                        this.timeouts.push(
+                            setTimeout(
+                                (player: {
+                                    isHome: boolean
+                                    home: Coordinates
+                                    sprite: Phaser.GameObjects.Sprite
+                                    coords: Coordinates
+                                    isIll: boolean
+                                }) => {
+                                    this.tiles[player.coords.x][player.coords.y] -= 1
+                                    this.numberOfIll--
+                                    this.setNumberOfIll(this.numberOfIll)
+                                    this.gridEngine.setWalkingAnimationMapping(el, 0)
+                                    player.isIll = false
+                                },
+                                Math.random() * (this.recoveryTimeDispersion * 2) +
+                                    (this.recoveryTime - this.recoveryTimeDispersion),
+                                this.players[el],
+                            ),
+                        )
+                    }
                 }
             })
         }
     }
 
     printIll(): void {
-        console.log(this.tiles.reduce(function(a, b) { return a.concat(b) }) 
-            .reduce(function(a, b) { return a + b }));
+        console.log(
+            this.tiles
+                .reduce(function (a, b) {
+                    return a.concat(b)
+                })
+                .reduce(function (a, b) {
+                    return a + b
+                }),
+        )
     }
 
     addPlayer(id: string, home: Coordinates, direction: Direction): void {
@@ -314,7 +387,7 @@ export default class Scene extends Phaser.Scene {
             isHome: true,
             home: home,
             sprite,
-            coords: {x: home.x, y: home.y},
+            coords: { x: home.x, y: home.y },
             isIll: false,
             hasImmunity: false,
         }
@@ -327,26 +400,47 @@ export default class Scene extends Phaser.Scene {
             this.setNumberOfIll(this.numberOfIll)
             this.gridEngine.setWalkingAnimationMapping(id, 1)
 
-            this.timeouts.push(setTimeout(
-                (player: { isHome: boolean; home: Coordinates; sprite: Phaser.GameObjects.Sprite; coords: Coordinates, isIll: boolean, hasImmunity: boolean }) => {
-                    this.tiles[player.coords.x][player.coords.y] -= 1
-                    this.numberOfIll--
-                    this.setNumberOfIll(this.numberOfIll)
-                    this.gridEngine.setWalkingAnimationMapping(id, 0)
-                    player.isIll = false
-                    player.hasImmunity = true
-                    if (this.immunityTime > 0) {
-                        this.timeouts.push(setTimeout(
-                            (player: { isHome: boolean; home: Coordinates; sprite: Phaser.GameObjects.Sprite; coords: Coordinates, isIll: boolean, hasImmunity: boolean }) => {
-                                player.hasImmunity = false
-                            },
-                            Math.random() * (this.immunityTimeDispersion * 2) + (this.immunityTime - this.immunityTimeDispersion),
-                            player))
-                    }
-                },
-                Math.random() * (this.recoveryTimeDispersion * 2) + (this.recoveryTime - this.recoveryTimeDispersion),
-                this.players[id],
-            ))
+            this.timeouts.push(
+                setTimeout(
+                    (player: {
+                        isHome: boolean
+                        home: Coordinates
+                        sprite: Phaser.GameObjects.Sprite
+                        coords: Coordinates
+                        isIll: boolean
+                        hasImmunity: boolean
+                    }) => {
+                        this.tiles[player.coords.x][player.coords.y] -= 1
+                        this.numberOfIll--
+                        this.setNumberOfIll(this.numberOfIll)
+                        this.gridEngine.setWalkingAnimationMapping(id, 0)
+                        player.isIll = false
+                        player.hasImmunity = true
+                        if (this.immunityTime > 0) {
+                            this.timeouts.push(
+                                setTimeout(
+                                    (player: {
+                                        isHome: boolean
+                                        home: Coordinates
+                                        sprite: Phaser.GameObjects.Sprite
+                                        coords: Coordinates
+                                        isIll: boolean
+                                        hasImmunity: boolean
+                                    }) => {
+                                        player.hasImmunity = false
+                                    },
+                                    Math.random() * (this.immunityTimeDispersion * 2) +
+                                        (this.immunityTime - this.immunityTimeDispersion),
+                                    player,
+                                ),
+                            )
+                        }
+                    },
+                    Math.random() * (this.recoveryTimeDispersion * 2) +
+                        (this.recoveryTime - this.recoveryTimeDispersion),
+                    this.players[id],
+                ),
+            )
         }
     }
 
@@ -378,7 +472,7 @@ export default class Scene extends Phaser.Scene {
     }
 
     stop(): void {
-        this.timeouts.forEach(el => {
+        this.timeouts.forEach((el) => {
             clearTimeout(el)
         })
         this.onStop(this.avg_samples.reduce((a, b) => a + b, 0) / this.avg_samples.length, this.max)

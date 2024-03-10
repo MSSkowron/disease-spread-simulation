@@ -27,16 +27,29 @@ export const startSimulation = (
     rangeOfDiseaseSpread: number,
     walkingSpeed: number,
     onStop: (avg: number, max: number) => void,
-    setNumberOfIll: (n : number) => void,
+    setNumberOfIll: (n: number) => void,
 ): SimulationData => {
-    const scene = new Scene(data, numberOfPlayers, timeOfSimulation, 
-        probabilityOfInfection, probabilityOfInfectionAtTheBeginning,
-        recoveryTime, recoveryTimeDispersion,
-        immunityTime, immunityTimeDispersion, immunityRate,
-        publicPlaceSpendingTime, publicPlaceSpendingTimeDispersion,
-        privatePlaceSpendingTime, privatePlaceSpendingTimeDispersion,
-        timeSpendingInHomeWhenIll, rangeOfDiseaseSpread, walkingSpeed, 
-        onStop, setNumberOfIll)
+    const scene = new Scene(
+        data,
+        numberOfPlayers,
+        timeOfSimulation,
+        probabilityOfInfection,
+        probabilityOfInfectionAtTheBeginning,
+        recoveryTime,
+        recoveryTimeDispersion,
+        immunityTime,
+        immunityTimeDispersion,
+        immunityRate,
+        publicPlaceSpendingTime,
+        publicPlaceSpendingTimeDispersion,
+        privatePlaceSpendingTime,
+        privatePlaceSpendingTimeDispersion,
+        timeSpendingInHomeWhenIll,
+        rangeOfDiseaseSpread,
+        walkingSpeed,
+        onStop,
+        setNumberOfIll,
+    )
 
     const config: Phaser.Types.Core.GameConfig = {
         type: Phaser.AUTO,
