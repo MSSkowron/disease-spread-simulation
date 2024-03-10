@@ -23,13 +23,13 @@ interface SimulationConfigData {
     privatePlaceSpendingTimeDispersion: number
     timeSpendingInHomeWhenIll: number
     rangeOfDiseaseSpread: number
-    walkingSpeed: number
 }
 
 interface SimulationConfig {
-    no_simulations: number
+    numberOfSimulations: number
     numberOfPlayers: number
     timeOfSimulation: number
+    walkingSpeed: number
     data: SimulationConfigData[]
 }
 
@@ -307,7 +307,7 @@ const App = () => {
         data: MapData,
         index: number,
     ) => {
-        if (index >= configData.no_simulations) {
+        if (index >= configData.numberOfSimulations) {
             document.body.style.overflow = 'auto'
             setIsSimulationOn(false)
 
@@ -352,7 +352,7 @@ const App = () => {
             configData.data[index].privatePlaceSpendingTimeDispersion * 1000,
             configData.data[index].timeSpendingInHomeWhenIll * 1000,
             configData.data[index].rangeOfDiseaseSpread,
-            configData.data[index].walkingSpeed,
+            configData.walkingSpeed,
             (avg: number, max: number) => {
                 analyticsData.push({
                     noPeople: configData.numberOfPlayers,
@@ -372,7 +372,7 @@ const App = () => {
                     prvSpTiDis: configData.data[index].privatePlaceSpendingTimeDispersion,
                     illTiSpHom: configData.data[index].timeSpendingInHomeWhenIll,
                     SprdRange: configData.data[index].rangeOfDiseaseSpread,
-                    walkSpeed: configData.data[index].walkingSpeed,
+                    walkSpeed: configData.walkingSpeed,
                 })
                 stopSimulation(simulationData!)
                 setNumberOfIll(0)
