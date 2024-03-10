@@ -333,12 +333,27 @@ const App = () => {
                         setWalkingSpeed(5)
 
                         setNumberOfIll(0)
+
+                        chartData.labels = []
+                        chartData.datasets[0].data = []
+                        setChartData({
+                            labels: chartData.labels,
+                            datasets: [
+                                {
+                                    label: 'Number of ill',
+                                    data: chartData.datasets[0].data,
+                                    borderColor: 'rgb(255, 99, 132)',
+                                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                                },
+                            ],
+                        })
+                        ChartJS.getChart('simulation-chart')?.reset()
                     },
                     (n: number) => {
                         setNumberOfIll(n)
+
                         chartData.labels.push(new Date().toLocaleTimeString())
                         chartData.datasets[0].data.push(n)
-
                         setChartData({
                             labels: chartData.labels,
                             datasets: [
@@ -390,6 +405,22 @@ const App = () => {
             setWalkingSpeed(5)
 
             setNumberOfIll(0)
+
+            chartData.labels = []
+            chartData.datasets[0].data = []
+            setChartData({
+                labels: chartData.labels,
+                datasets: [
+                    {
+                        label: 'Number of ill',
+                        data: chartData.datasets[0].data,
+                        borderColor: 'rgb(255, 99, 132)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                    },
+                ],
+            })
+            ChartJS.getChart('simulation-chart')?.reset()
+
             return
         }
 
@@ -435,12 +466,39 @@ const App = () => {
                 stopSimulation(simulationData!)
                 setNumberOfIll(0)
 
+                chartData.labels = []
+                chartData.datasets[0].data = []
+                setChartData({
+                    labels: chartData.labels,
+                    datasets: [
+                        {
+                            label: 'Number of ill',
+                            data: chartData.datasets[0].data,
+                            borderColor: 'rgb(255, 99, 132)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                        },
+                    ],
+                })
+                ChartJS.getChart('simulation-chart')?.reset()
+
                 startNextSimulation(configData, data, index + 1)
             },
             (n: number) => {
                 setNumberOfIll(n)
+                
                 chartData.labels.push(new Date().toLocaleTimeString())
                 chartData.datasets[0].data.push(n)
+                setChartData({
+                    labels: chartData.labels,
+                    datasets: [
+                        {
+                            label: 'Number of ill',
+                            data: chartData.datasets[0].data,
+                            borderColor: 'rgb(255, 99, 132)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                        },
+                    ],
+                })
             },
         )
     }
@@ -505,7 +563,7 @@ const App = () => {
                             Number of ill: <strong>{numberOfIll}</strong>
                         </p>
                     </div>
-                    <Line data={chartData} options={options} />
+                    <Line id='simulation-chart' data={chartData} options={options} key={'simulation-chart'} />
                 </div>
             </div>
             <div
