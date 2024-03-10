@@ -19,9 +19,10 @@ You can configure the simulation in two ways:
 
   ```json
   {
-    "no_simulations": 5,
+    "numberOfSimulations": 5,
     "numberOfPlayers": 200,
     "timeOfSimulation": 10,
+    "walkingSpeed": 5,
     "data": [
       {
         "probabilityOfInfection": 0.2,
@@ -36,8 +37,7 @@ You can configure the simulation in two ways:
         "privatePlaceSpendingTime": 2,
         "privatePlaceSpendingTimeDispersion": 1,
         "timeSpendingInHomeWhenIll": 0,
-        "rangeOfDiseaseSpread": 1,
-        "walkingSpeed": 5
+        "rangeOfDiseaseSpread": 1
       }
       // ... (additional configurations)
     ]
