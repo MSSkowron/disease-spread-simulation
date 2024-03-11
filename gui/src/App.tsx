@@ -485,7 +485,7 @@ const App = () => {
             },
             (n: number) => {
                 setNumberOfIll(n)
-                
+
                 chartData.labels.push(new Date().toLocaleTimeString())
                 chartData.datasets[0].data.push(n)
                 setChartData({
@@ -554,16 +554,21 @@ const App = () => {
             <div
                 id='simulation-content'
                 style={{ display: `${isSimulationOn ? 'flex' : 'none'}` }}
-                className='w-100 vh-100 flex-row-reverse'
+                className='vw-100 vh-100 flex-row-reverse justify-content-around'
             >
-                <div className='flex-grow-1 d-flex flex-column justify-content-center align-items-center'>
+                <div className='d-flex flex-column justify-content-center align-items-center w-50'>
                     <div>
                         <h1>Simulation</h1>
                         <p>
                             Number of ill: <strong>{numberOfIll}</strong>
                         </p>
                     </div>
-                    <Line id='simulation-chart' data={chartData} options={options} key={'simulation-chart'} />
+                    <Line
+                        id='simulation-chart'
+                        data={chartData}
+                        options={options}
+                        key={'simulation-chart'}
+                    />
                 </div>
             </div>
             <div
