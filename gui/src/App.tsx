@@ -41,6 +41,12 @@ export const options = {
             max: 200,
         },
     },
+    spanGaps: true,
+    elements: {
+        point: {
+            radius: 0
+        }
+    }
 }
 
 const RANDOM_MOVEMENT_SERVER_API_URL: string = import.meta.env
