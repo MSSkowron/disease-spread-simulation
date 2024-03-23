@@ -309,6 +309,8 @@ const App = () => {
                         },
                     ],
                 })
+                ChartJS.getChart('simulation-chart')!.options.scales!.y!.max = numberOfPlayers
+                ChartJS.getChart('simulation-chart')?.update()
 
                 const simulationData = startSimulation(
                     data,
@@ -470,6 +472,8 @@ const App = () => {
                 },
             ],
         })
+        ChartJS.getChart('simulation-chart')!.options.scales!.y!.max = configData.numberOfPlayers
+        ChartJS.getChart('simulation-chart')?.update()
 
         const simulationData = startSimulation(
             data,
