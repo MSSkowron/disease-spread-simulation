@@ -28,6 +28,7 @@ export const startSimulation = (
     walkingSpeed: number,
     onStop: (avg: number, max: number) => void,
     setNumberOfIll: (n: number) => void,
+    updateChart: (n: number) => void,
 ): SimulationData => {
     const scene = new Scene(
         data,
@@ -49,6 +50,7 @@ export const startSimulation = (
         walkingSpeed,
         onStop,
         setNumberOfIll,
+        updateChart,
     )
 
     const config: Phaser.Types.Core.GameConfig = {
