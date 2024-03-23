@@ -4,6 +4,10 @@
 
 This project implements a simulation of disease spread in a population with various configurable parameters.
 
+## Simulation
+
+![Simulation](/img/simulation.png)
+
 ## Simulation Configuration
 
 You can configure the simulation in two ways:
@@ -17,32 +21,31 @@ You can configure the simulation in two ways:
   Upload a JSON configuration file using the Upload button.
   The file should have the following format:
 
-  ```json
-  {
-    "numberOfSimulations": 5,
-    "numberOfPlayers": 200,
-    "timeOfSimulation": 10,
-    "walkingSpeed": 5,
-    "data": [
-      {
-        "probabilityOfInfection": 0.2,
-        "probabilityOfInfectionAtTheBeginning": 0.1,
-        "recoveryTime": 10,
-        "recoveryTimeDispersion": 5,
-        "immunityTime": 0,
-        "immunityTimeDispersion": 0,
-        "immunityRate": 0.0,
-        "publicPlaceSpendingTime": 2,
-        "publicPlaceSpendingTimeDispersion": 1,
-        "privatePlaceSpendingTime": 2,
-        "privatePlaceSpendingTimeDispersion": 1,
-        "timeSpendingInHomeWhenIll": 0,
-        "rangeOfDiseaseSpread": 1
-      }
-      // ... (additional configurations)
-    ]
-  }
-  ```
+```json
+{
+  "numberOfSimulations": 5,
+  "numberOfPlayers": 60,
+  "timeOfSimulation": 10,
+  "walkingSpeed": 5,
+  "data": [
+    {
+      "probabilityOfInfection": 0.2,
+      "probabilityOfInfectionAtTheBeginning": 0.1,
+      "recoveryTime": 10,
+      "recoveryTimeDispersion": 5,
+      "immunityTime": 0,
+      "immunityTimeDispersion": 0,
+      "immunityRate": 0.0,
+      "publicPlaceSpendingTime": 2,
+      "publicPlaceSpendingTimeDispersion": 1,
+      "privatePlaceSpendingTime": 2,
+      "privatePlaceSpendingTimeDispersion": 1,
+      "timeSpendingInHomeWhenIll": 0,
+      "rangeOfDiseaseSpread": 1
+    }
+  ]
+}
+```
 
 ### Standard Parameters
 
