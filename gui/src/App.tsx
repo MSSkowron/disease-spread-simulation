@@ -38,7 +38,7 @@ export const options = {
                 text: 'Number of ill',
             },
             min: 0,
-            max: 200,
+            max: 250,
         },
     },
     spanGaps: true,
