@@ -55,6 +55,7 @@ export default class Scene extends Phaser.Scene {
     private readonly walkingSpeed: number
     private readonly onStop: (avg: number, max: number) => void
     private readonly setNumberOfIll: (n: number) => void
+    private readonly updateChart: (n: number) => void
 
     private readonly players: {
         [id: string]: {
@@ -93,6 +94,7 @@ export default class Scene extends Phaser.Scene {
         walkingSpeed: number,
         onStop: (avg: number, max: number) => void,
         setNumberOfIll: (n: number) => void,
+        updateChart: (n: number) => void,
     ) {
         super(sceneConfig)
         this.numberOfIll = 0
@@ -116,6 +118,7 @@ export default class Scene extends Phaser.Scene {
 
         this.onStop = onStop
         this.setNumberOfIll = setNumberOfIll
+        this.updateChart = updateChart
 
         this.tiles = []
         for (var i: number = 0; i < this.mapData.width; i++) {
@@ -285,6 +288,12 @@ export default class Scene extends Phaser.Scene {
         setTimeout(() => {
             this.stop()
         }, this.timeOfSimulation)
+
+        this.timeouts.push(
+            setInterval(() => {
+                this.updateChart(this.numberOfIll)
+            }, 1000),
+        )
     }
 
     update(time: number): void {

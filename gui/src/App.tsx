@@ -24,6 +24,29 @@ export const options = {
             position: 'top' as const,
         },
     },
+    animation: false,
+    scales: {
+        x: {
+            title: {
+                display: true,
+                text: 'Time (s)',
+            },
+        },
+        y: {
+            title: {
+                display: true,
+                text: 'Number of ill',
+            },
+            min: 0,
+            max: 250,
+        },
+    },
+    spanGaps: true,
+    elements: {
+        point: {
+            radius: 0
+        }
+    }
 }
 
 const RANDOM_MOVEMENT_SERVER_API_URL: string = import.meta.env
@@ -189,6 +212,7 @@ const App = () => {
     const [configFile, setConfigFile] = useState<File | null>(null)
 
     const [numberOfIll, setNumberOfIll] = useState<number>(0)
+
     const [chartData, setChartData] = useState<ChartData>({
         labels: [],
         datasets: [
@@ -269,6 +293,25 @@ const App = () => {
             .then((response) => {
                 const data: MapData = response.data
                 shuffle(data.privateTiles)
+
+                chartData.labels = Array.from({ length: timeOfSimulation }, (_, index) =>
+                    index.toString(),
+                )
+                chartData.datasets[0].data = []
+                setChartData({
+                    labels: chartData.labels,
+                    datasets: [
+                        {
+                            label: 'Number of ill',
+                            data: chartData.datasets[0].data,
+                            borderColor: 'rgb(255, 99, 132)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                        },
+                    ],
+                })
+                ChartJS.getChart('simulation-chart')!.options.scales!.y!.max = numberOfPlayers
+                ChartJS.getChart('simulation-chart')?.update()
+
                 const simulationData = startSimulation(
                     data,
                     numberOfPlayers,
@@ -351,20 +394,10 @@ const App = () => {
                     },
                     (n: number) => {
                         setNumberOfIll(n)
-
-                        chartData.labels.push(new Date().toLocaleTimeString())
+                    },
+                    (n: number) => {
                         chartData.datasets[0].data.push(n)
-                        setChartData({
-                            labels: chartData.labels,
-                            datasets: [
-                                {
-                                    label: 'Number of ill',
-                                    data: chartData.datasets[0].data,
-                                    borderColor: 'rgb(255, 99, 132)',
-                                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
-                                },
-                            ],
-                        })
+                        ChartJS.getChart('simulation-chart')?.update()
                     },
                 )
                 document.body.style.overflow = 'hidden'
@@ -424,6 +457,24 @@ const App = () => {
             return
         }
 
+        chartData.labels = Array.from({ length: configData.timeOfSimulation }, (_, index) =>
+            index.toString(),
+        )
+        chartData.datasets[0].data = []
+        setChartData({
+            labels: chartData.labels,
+            datasets: [
+                {
+                    label: 'Number of ill',
+                    data: chartData.datasets[0].data,
+                    borderColor: 'rgb(255, 99, 132)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                },
+            ],
+        })
+        ChartJS.getChart('simulation-chart')!.options.scales!.y!.max = configData.numberOfPlayers
+        ChartJS.getChart('simulation-chart')?.update()
+
         const simulationData = startSimulation(
             data,
             configData.numberOfPlayers,
@@ -466,7 +517,9 @@ const App = () => {
                 stopSimulation(simulationData!)
                 setNumberOfIll(0)
 
-                chartData.labels = []
+                chartData.labels = Array.from({ length: configData.timeOfSimulation }, (_, index) =>
+                    index.toString(),
+                )
                 chartData.datasets[0].data = []
                 setChartData({
                     labels: chartData.labels,
@@ -485,20 +538,10 @@ const App = () => {
             },
             (n: number) => {
                 setNumberOfIll(n)
-
-                chartData.labels.push(new Date().toLocaleTimeString())
+            },
+            (n: number) => {
                 chartData.datasets[0].data.push(n)
-                setChartData({
-                    labels: chartData.labels,
-                    datasets: [
-                        {
-                            label: 'Number of ill',
-                            data: chartData.datasets[0].data,
-                            borderColor: 'rgb(255, 99, 132)',
-                            backgroundColor: 'rgba(255, 99, 132, 0.5)',
-                        },
-                    ],
-                })
+                ChartJS.getChart('simulation-chart')?.update()
             },
         )
     }
@@ -566,6 +609,7 @@ const App = () => {
                     <Line
                         id='simulation-chart'
                         data={chartData}
+                        // @ts-ignore
                         options={options}
                         key={'simulation-chart'}
                     />
