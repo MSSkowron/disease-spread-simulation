@@ -1,5 +1,10 @@
 # Disease Spread Simulation
 
+## Authors
+
+- [Mateusz Skowron](https://github.com/MSSkowron)
+- [Jakub Strojewski](https://github.com/strjakub)
+
 ## Description
 
 This project implements a simulation of disease spread in a population with various configurable parameters.
